@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: fenix_postgres
+    environment:
+      POSTGRES_USER: postgresuser
+      POSTGRES_PASSWORD: qwe123!@#
+      POSTGRES_DB: FenixDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pg_data:
