@@ -10,6 +10,12 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<FenixContext>();
+    await AppDataInitializer.InitializeAsync(context);
+}
+
 app.MapControllers();
 
 app.Run();
