@@ -5,10 +5,9 @@ public class ExpenseResponse
     public Guid Id { get; init; }
     public string Description { get; init; } = string.Empty;
     public decimal TotalAmount { get; init; }
-    public DateTime Date { get; init; }
+    public DateTime PurchaseDate { get; init; }
     public string PaymentType { get; init; } = string.Empty;
-    public int? InstallmentsQuantity { get; init; }
-    public int? CurrentInstallmentNumber { get; init; }
+    public int TotalInstallments { get; init; }
     public IReadOnlyCollection<InstallmentResponse> Installments { get; init; } = [];
 }
 

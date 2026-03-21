@@ -1,0 +1,37 @@
+using api.DTOs;
+using api.Entities;
+
+namespace api.Features.Expenses;
+
+public static class ExpenseMapper
+{
+    public static ExpenseResponse ToResponse(Expense expense)
+    {
+        var orderedInstallments = expense.Installments
+            .OrderBy(installment => installment.Number)
+            .ToList();
+
+        return new ExpenseResponse
+        {
+            Id = expense.Id,
+            Description = expense.Description,
+            TotalAmount = expense.TotalAmount,
+            PurchaseDate = expense.Date,
+            PaymentType = expense.Type,
+            TotalInstallments = expense.InstallmentsQuantity ?? orderedInstallments.Count,
+            Installments = orderedInstallments.Select(ToInstallmentResponse).ToList()
+        };
+    }
+
+    public static InstallmentResponse ToInstallmentResponse(Installment installment)
+    {
+        return new InstallmentResponse
+        {
+            Id = installment.Id,
+            Number = installment.Number,
+            Amount = installment.Amount,
+            DueDate = installment.DueDate,
+            Paid = installment.Paid
+        };
+    }
+}
