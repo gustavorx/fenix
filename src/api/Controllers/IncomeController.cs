@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/incomes")]
 public class IncomeController(FenixContext context) : ControllerBase
 {
     [HttpPost]
@@ -15,25 +15,84 @@ public class IncomeController(FenixContext context) : ControllerBase
         [FromBody] CreateIncomeRequest? request)
     {
         if (request == null)
+        {
             return BadRequest("Invalid data.");
-        
-        Income income = new();
-        income.Id = Guid.NewGuid();
-        income.Description = request.Description;
-        income.Amount = request.Amount;
-        income.Date = DateTime.UtcNow;
-        income.UserId = request.UserId;
-        
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Description))
+        {
+            return BadRequest("Description is required.");
+        }
+
+        if (request.Amount <= 0)
+        {
+            return BadRequest("Amount must be greater than zero.");
+        }
+
+        var income = new Income
+        {
+            Id = Guid.NewGuid(),
+            Description = request.Description.Trim(),
+            Amount = request.Amount,
+            Date = NormalizeDate(request.Date),
+            UserId = AppDataInitializer.DefaultUserId
+        };
+
         context.Incomes.Add(income);
-        
         await context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetIncomes), new { id = income.Id }, income);
+        return CreatedAtAction(nameof(GetIncomeById), new { id = income.Id }, Map(income));
     }
-    
-    [HttpGet()]
+
+    [HttpGet]
     public async Task<IActionResult> GetIncomes()
     {
-        return Ok(await context.Incomes.ToListAsync());
+        var incomes = await context.Incomes
+            .AsNoTracking()
+            .OrderByDescending(income => income.Date)
+            .ToListAsync();
+
+        return Ok(incomes.Select(Map));
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetIncomeById(Guid id)
+    {
+        var income = await context.Incomes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(item => item.Id == id);
+
+        if (income == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(Map(income));
+    }
+
+    private static IncomeResponse Map(Income income)
+    {
+        return new IncomeResponse
+        {
+            Id = income.Id,
+            Description = income.Description,
+            Amount = income.Amount,
+            Date = income.Date
+        };
+    }
+
+    private static DateTime NormalizeDate(DateTime? date)
+    {
+        if (date == null)
+        {
+            return DateTime.UtcNow;
+        }
+
+        return date.Value.Kind switch
+        {
+            DateTimeKind.Utc => date.Value,
+            DateTimeKind.Local => date.Value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(date.Value, DateTimeKind.Utc)
+        };
     }
 }
