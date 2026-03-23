@@ -13,8 +13,7 @@ public class ExpenseShareMap : IEntityTypeConfiguration<ExpenseShare>
         builder.HasKey(s => s.Id);
 
         builder.Property(s => s.Amount)
-            .IsRequired()
-            .HasColumnType("decimal(18,2)");
+            .IsRequired();
 
         builder.Property(s => s.Paid)
             .IsRequired();

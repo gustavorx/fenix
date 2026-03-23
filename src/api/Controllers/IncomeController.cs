@@ -1,6 +1,7 @@
 using api.Data;
 using api.DTOs;
 using api.Entities;
+using api.ValueObjects;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,11 +30,16 @@ public class IncomeController(FenixContext context) : ControllerBase
             return BadRequest("Amount must be greater than zero.");
         }
 
+        if (!Money.HasValidScale(request.Amount))
+        {
+            return BadRequest("Amount must have at most 2 decimal places.");
+        }
+
         var income = new Income
         {
             Id = Guid.NewGuid(),
             Description = request.Description.Trim(),
-            Amount = request.Amount,
+            Amount = Money.Create(request.Amount),
             Date = NormalizeDate(request.Date),
             UserId = AppDataInitializer.DefaultUserId
         };
@@ -76,7 +82,7 @@ public class IncomeController(FenixContext context) : ControllerBase
         {
             Id = income.Id,
             Description = income.Description,
-            Amount = income.Amount,
+            Amount = income.Amount.Value,
             Date = income.Date
         };
     }

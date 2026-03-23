@@ -17,7 +17,7 @@ public class CardMap : IEntityTypeConfiguration<Card>
             .HasMaxLength(100);
 
         builder.Property(c => c.Limit)
-            .HasColumnType("decimal(18,2)");
+            .IsRequired(false);
 
         builder.Property(c => c.ClosingDay)
             .IsRequired(false);

@@ -15,7 +15,7 @@ public static class ExpenseMapper
         {
             Id = expense.Id,
             Description = expense.Description,
-            TotalAmount = expense.TotalAmount,
+            TotalAmount = expense.TotalAmount.Value,
             PurchaseDate = expense.Date,
             PaymentType = expense.Type,
             TotalInstallments = expense.InstallmentsQuantity ?? orderedInstallments.Count,
@@ -29,7 +29,7 @@ public static class ExpenseMapper
         {
             Id = installment.Id,
             Number = installment.Number,
-            Amount = installment.Amount,
+            Amount = installment.Amount.Value,
             DueDate = installment.DueDate,
             Paid = installment.Paid
         };

@@ -1,6 +1,7 @@
 using api.Data;
 using api.DTOs;
 using api.Entities;
+using api.ValueObjects;
 
 namespace api.Features.Expenses;
 
@@ -18,6 +19,11 @@ public class CreateExpenseUseCase(FenixContext context)
             return CreateExpenseResult.Failure("TotalAmount must be greater than zero.");
         }
 
+        if (!Money.HasValidScale(request.TotalAmount))
+        {
+            return CreateExpenseResult.Failure("TotalAmount must have at most 2 decimal places.");
+        }
+
         var normalizedPaymentType = ExpenseRules.NormalizePaymentType(request.PaymentType);
         if (normalizedPaymentType == null)
         {
@@ -30,11 +36,13 @@ public class CreateExpenseUseCase(FenixContext context)
             return CreateExpenseResult.Failure("TotalInstallments must be 1 for cash or greater than 1 for installment.");
         }
 
+        var totalAmount = Money.Create(request.TotalAmount);
+
         var expense = new Expense
         {
             Id = Guid.NewGuid(),
             Description = request.Description.Trim(),
-            TotalAmount = request.TotalAmount,
+            TotalAmount = totalAmount,
             Date = ExpenseRules.NormalizeDate(request.PurchaseDate),
             Type = normalizedPaymentType,
             InstallmentsQuantity = totalInstallments.Value,
@@ -43,7 +51,7 @@ public class CreateExpenseUseCase(FenixContext context)
         };
 
         var firstDueDate = ExpenseRules.NormalizeDate(request.FirstDueDate ?? request.PurchaseDate);
-        var installmentAmounts = ExpenseRules.SplitAmount(request.TotalAmount, totalInstallments.Value);
+        var installmentAmounts = ExpenseRules.SplitAmount(totalAmount, totalInstallments.Value);
 
         expense.Installments = installmentAmounts
             .Select((amount, index) => new Installment

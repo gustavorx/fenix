@@ -16,8 +16,7 @@ public class InstallmentMap : IEntityTypeConfiguration<Installment>
             .IsRequired();
 
         builder.Property(i => i.Amount)
-            .IsRequired()
-            .HasColumnType("decimal(18,2)");
+            .IsRequired();
 
         builder.Property(i => i.DueDate)
             .IsRequired();

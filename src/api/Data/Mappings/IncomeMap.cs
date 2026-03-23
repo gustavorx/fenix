@@ -17,8 +17,7 @@ public class IncomeMap : IEntityTypeConfiguration<Income>
             .HasMaxLength(200);
 
         builder.Property(i => i.Amount)
-            .IsRequired()
-            .HasColumnType("decimal(18,2)");
+            .IsRequired();
 
         builder.Property(i => i.Date)
             .IsRequired();

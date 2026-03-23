@@ -1,9 +1,11 @@
+using api.ValueObjects;
+
 namespace api.Entities;
 
 public class ExpenseShare
 {
     public Guid Id { get; set; }
-    public decimal Amount { get; set; }
+    public Money Amount { get; set; }
     public bool Paid { get; set; }
     public DateTime? PaymentDate { get; set; }
 

@@ -1,3 +1,5 @@
+using api.ValueObjects;
+
 namespace api.Features.Expenses;
 
 public static class ExpenseRules
@@ -35,16 +37,17 @@ public static class ExpenseRules
         return null;
     }
 
-    public static IReadOnlyList<decimal> SplitAmount(decimal totalAmount, int totalInstallments)
+    public static IReadOnlyList<Money> SplitAmount(Money totalAmount, int totalInstallments)
     {
-        var baseAmount = Math.Floor((totalAmount / totalInstallments) * 100) / 100;
-        var amounts = Enumerable.Repeat(baseAmount, totalInstallments).ToArray();
-        var remainder = totalAmount - (baseAmount * totalInstallments);
+        var totalCents = decimal.ToInt64(totalAmount.Value * 100m);
+        var baseCents = totalCents / totalInstallments;
+        var remainderCents = totalCents % totalInstallments;
+        var amounts = new List<Money>(totalInstallments);
 
-        for (var index = 0; remainder > 0; index = (index + 1) % totalInstallments)
+        for (var index = 0; index < totalInstallments; index++)
         {
-            amounts[index] += 0.01m;
-            remainder -= 0.01m;
+            var installmentCents = baseCents + (index < remainderCents ? 1 : 0);
+            amounts.Add(Money.Create(installmentCents / 100m));
         }
 
         return amounts;

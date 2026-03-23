@@ -1,5 +1,6 @@
 using api.Data;
 using api.DTOs;
+using api.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.Expenses;
@@ -20,17 +21,17 @@ public class MonthlyExpensesQuery(FenixContext context)
         {
             Month = month,
             Year = year,
-            TotalAmount = installments.Sum(installment => installment.Amount),
+            TotalAmount = installments.Aggregate(Money.Zero, (total, installment) => total + installment.Amount).Value,
             Installments = installments.Select(installment => new MonthlyExpenseInstallmentResponse
             {
                 InstallmentId = installment.Id,
                 ExpenseId = installment.ExpenseId,
                 Description = installment.Expense.Description,
                 PaymentType = installment.Expense.Type,
-                TotalAmount = installment.Expense.TotalAmount,
+                TotalAmount = installment.Expense.TotalAmount.Value,
                 TotalInstallments = installment.Expense.InstallmentsQuantity ?? 1,
                 InstallmentNumber = installment.Number,
-                InstallmentAmount = installment.Amount,
+                InstallmentAmount = installment.Amount.Value,
                 PurchaseDate = installment.Expense.Date,
                 DueDate = installment.DueDate,
                 Paid = installment.Paid
