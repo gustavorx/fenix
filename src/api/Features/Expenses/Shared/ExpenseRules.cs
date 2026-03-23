@@ -1,6 +1,6 @@
 using api.ValueObjects;
 
-namespace api.Features.Expenses;
+namespace api.Features.Expenses.Shared;
 
 public static class ExpenseRules
 {

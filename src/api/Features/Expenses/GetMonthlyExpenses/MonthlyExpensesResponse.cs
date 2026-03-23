@@ -1,4 +1,4 @@
-namespace api.DTOs;
+namespace api.Features.Expenses.GetMonthlyExpenses;
 
 public class MonthlyExpensesResponse
 {

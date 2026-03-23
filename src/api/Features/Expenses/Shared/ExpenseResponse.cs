@@ -1,4 +1,4 @@
-namespace api.DTOs;
+namespace api.Features.Expenses.Shared;
 
 public class ExpenseResponse
 {

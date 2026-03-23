@@ -1,7 +1,6 @@
-using api.DTOs;
 using api.Entities;
 
-namespace api.Features.Expenses;
+namespace api.Features.Expenses.Shared;
 
 public static class ExpenseMapper
 {

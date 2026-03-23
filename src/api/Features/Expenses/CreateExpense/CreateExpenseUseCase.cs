@@ -1,9 +1,9 @@
 using api.Data;
-using api.DTOs;
 using api.Entities;
+using api.Features.Expenses.Shared;
 using api.ValueObjects;
 
-namespace api.Features.Expenses;
+namespace api.Features.Expenses.CreateExpense;
 
 public class CreateExpenseUseCase(FenixContext context)
 {

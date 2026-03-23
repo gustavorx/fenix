@@ -1,11 +1,10 @@
 using api.Data;
-using api.DTOs;
 using api.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
-namespace api.Features.Expenses;
+namespace api.Features.Expenses.GetMonthlyExpenses;
 
-public class MonthlyExpensesQuery(FenixContext context)
+public class GetMonthlyExpensesUseCase(FenixContext context)
 {
     public async Task<MonthlyExpensesResponse> ExecuteAsync(int month, int year, CancellationToken cancellationToken)
     {

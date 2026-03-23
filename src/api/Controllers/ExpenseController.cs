@@ -1,7 +1,8 @@
-using api.DTOs;
-using api.Features.Expenses;
+using api.Features.Expenses.CreateExpense;
+using api.Features.Expenses.GetAllExpenses;
+using api.Features.Expenses.GetExpenseById;
+using api.Features.Expenses.GetMonthlyExpenses;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers;
 
@@ -9,8 +10,9 @@ namespace api.Controllers;
 [Route("api/expenses")]
 public class ExpenseController(
     CreateExpenseUseCase createExpenseUseCase,
-    MonthlyExpensesQuery monthlyExpensesQuery,
-    ExpenseQueries expenseQueries) : ControllerBase
+    GetMonthlyExpensesUseCase getMonthlyExpensesUseCase,
+    GetAllExpensesUseCase getAllExpensesUseCase,
+    GetExpenseByIdUseCase getExpenseByIdUseCase) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateExpense(
@@ -34,7 +36,7 @@ public class ExpenseController(
     [HttpGet]
     public async Task<IActionResult> GetExpenses(CancellationToken cancellationToken)
     {
-        var expenses = await expenseQueries.ListAsync(cancellationToken);
+        var expenses = await getAllExpensesUseCase.ExecuteAsync(cancellationToken);
         return Ok(expenses);
     }
 
@@ -54,14 +56,14 @@ public class ExpenseController(
             return BadRequest("Year must be between 1 and 9999.");
         }
 
-        var response = await monthlyExpensesQuery.ExecuteAsync(month, year, cancellationToken);
+        var response = await getMonthlyExpensesUseCase.ExecuteAsync(month, year, cancellationToken);
         return Ok(response);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetExpenseById(Guid id, CancellationToken cancellationToken)
     {
-        var expense = await expenseQueries.GetByIdAsync(id, cancellationToken);
+        var expense = await getExpenseByIdUseCase.ExecuteAsync(id, cancellationToken);
         if (expense == null)
         {
             return NotFound();
