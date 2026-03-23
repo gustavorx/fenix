@@ -2,6 +2,7 @@ using api.Features.Expenses.CreateExpense;
 using api.Features.Expenses.GetAllExpenses;
 using api.Features.Expenses.GetExpenseById;
 using api.Features.Expenses.GetMonthlyExpenses;
+using api.Shared;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
@@ -25,12 +26,9 @@ public class ExpenseController(
         }
 
         var result = await createExpenseUseCase.ExecuteAsync(request, cancellationToken);
-        if (!result.IsSuccess)
-        {
-            return BadRequest(result.ErrorMessage);
-        }
-
-        return CreatedAtAction(nameof(GetExpenseById), new { id = result.Response!.Id }, result.Response);
+        return ToActionResult(
+            result,
+            response => CreatedAtAction(nameof(GetExpenseById), new { id = response.Id }, response));
     }
 
     [HttpGet]
@@ -46,29 +44,29 @@ public class ExpenseController(
         [FromQuery] int year,
         CancellationToken cancellationToken)
     {
-        if (month is < 1 or > 12)
-        {
-            return BadRequest("Month must be between 1 and 12.");
-        }
-
-        if (year is < 1 or > 9999)
-        {
-            return BadRequest("Year must be between 1 and 9999.");
-        }
-
-        var response = await getMonthlyExpensesUseCase.ExecuteAsync(month, year, cancellationToken);
-        return Ok(response);
+        var result = await getMonthlyExpensesUseCase.ExecuteAsync(month, year, cancellationToken);
+        return ToActionResult(result, Ok);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetExpenseById(Guid id, CancellationToken cancellationToken)
     {
-        var expense = await getExpenseByIdUseCase.ExecuteAsync(id, cancellationToken);
-        if (expense == null)
+        var result = await getExpenseByIdUseCase.ExecuteAsync(id, cancellationToken);
+        return ToActionResult(result, Ok);
+    }
+
+    private IActionResult ToActionResult<T>(Result<T> result, Func<T, IActionResult> onSuccess)
+    {
+        if (result.IsSuccess)
         {
-            return NotFound();
+            return onSuccess(result.Value!);
         }
 
-        return Ok(expense);
+        return result.Error!.Type switch
+        {
+            ErrorType.Validation => BadRequest(result.Error),
+            ErrorType.NotFound => NotFound(result.Error),
+            _ => BadRequest(result.Error)
+        };
     }
 }
