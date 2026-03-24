@@ -20,6 +20,6 @@ public class GetExpenseByIdUseCase(FenixContext context)
                 AppError.NotFound("expense.not_found", "Expense not found."));
         }
 
-        return Result<ExpenseResponse>.Success(ExpenseMapper.ToResponse(expense));
+        return Result<ExpenseResponse>.Success(expense.ToResponse());
     }
 }
