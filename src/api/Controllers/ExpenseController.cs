@@ -13,7 +13,7 @@ public class ExpenseController(
     CreateExpenseUseCase createExpenseUseCase,
     GetMonthlyExpensesUseCase getMonthlyExpensesUseCase,
     GetAllExpensesUseCase getAllExpensesUseCase,
-    GetExpenseByIdUseCase getExpenseByIdUseCase) : ControllerBase
+    GetExpenseByIdUseCase getExpenseByIdUseCase) : ApiControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateExpense(
@@ -26,6 +26,7 @@ public class ExpenseController(
         }
 
         var result = await createExpenseUseCase.ExecuteAsync(request, cancellationToken);
+        
         return ToActionResult(
             result,
             response => CreatedAtAction(nameof(GetExpenseById), new { id = response.Id }, response));
@@ -35,6 +36,7 @@ public class ExpenseController(
     public async Task<IActionResult> GetExpenses(CancellationToken cancellationToken)
     {
         var expenses = await getAllExpensesUseCase.ExecuteAsync(cancellationToken);
+        
         return Ok(expenses);
     }
 
@@ -45,6 +47,7 @@ public class ExpenseController(
         CancellationToken cancellationToken)
     {
         var result = await getMonthlyExpensesUseCase.ExecuteAsync(month, year, cancellationToken);
+        
         return ToActionResult(result, Ok);
     }
 
@@ -52,21 +55,7 @@ public class ExpenseController(
     public async Task<IActionResult> GetExpenseById(Guid id, CancellationToken cancellationToken)
     {
         var result = await getExpenseByIdUseCase.ExecuteAsync(id, cancellationToken);
+        
         return ToActionResult(result, Ok);
-    }
-
-    private IActionResult ToActionResult<T>(Result<T> result, Func<T, IActionResult> onSuccess)
-    {
-        if (result.IsSuccess)
-        {
-            return onSuccess(result.Value!);
-        }
-
-        return result.Error!.Type switch
-        {
-            ErrorType.Validation => BadRequest(result.Error),
-            ErrorType.NotFound => NotFound(result.Error),
-            _ => BadRequest(result.Error)
-        };
     }
 }
