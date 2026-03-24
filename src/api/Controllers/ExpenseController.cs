@@ -1,7 +1,9 @@
-using api.DTOs;
-using api.Features.Expenses;
+using api.Features.Expenses.CreateExpense;
+using api.Features.Expenses.GetAllExpenses;
+using api.Features.Expenses.GetExpenseById;
+using api.Features.Expenses.GetMonthlyExpenses;
+using api.Shared;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers;
 
@@ -9,8 +11,9 @@ namespace api.Controllers;
 [Route("api/expenses")]
 public class ExpenseController(
     CreateExpenseUseCase createExpenseUseCase,
-    MonthlyExpensesQuery monthlyExpensesQuery,
-    ExpenseQueries expenseQueries) : ControllerBase
+    GetMonthlyExpensesUseCase getMonthlyExpensesUseCase,
+    GetAllExpensesUseCase getAllExpensesUseCase,
+    GetExpenseByIdUseCase getExpenseByIdUseCase) : ApiControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateExpense(
@@ -19,22 +22,21 @@ public class ExpenseController(
     {
         if (request == null)
         {
-            return BadRequest("Invalid data.");
+            return BadRequest(AppError.Validation("expense.request.invalid", "Invalid data."));
         }
 
         var result = await createExpenseUseCase.ExecuteAsync(request, cancellationToken);
-        if (!result.IsSuccess)
-        {
-            return BadRequest(result.ErrorMessage);
-        }
-
-        return CreatedAtAction(nameof(GetExpenseById), new { id = result.Response!.Id }, result.Response);
+        
+        return ToActionResult(
+            result,
+            response => CreatedAtAction(nameof(GetExpenseById), new { id = response.Id }, response));
     }
 
     [HttpGet]
     public async Task<IActionResult> GetExpenses(CancellationToken cancellationToken)
     {
-        var expenses = await expenseQueries.ListAsync(cancellationToken);
+        var expenses = await getAllExpensesUseCase.ExecuteAsync(cancellationToken);
+        
         return Ok(expenses);
     }
 
@@ -44,29 +46,16 @@ public class ExpenseController(
         [FromQuery] int year,
         CancellationToken cancellationToken)
     {
-        if (month is < 1 or > 12)
-        {
-            return BadRequest("Month must be between 1 and 12.");
-        }
-
-        if (year is < 1 or > 9999)
-        {
-            return BadRequest("Year must be between 1 and 9999.");
-        }
-
-        var response = await monthlyExpensesQuery.ExecuteAsync(month, year, cancellationToken);
-        return Ok(response);
+        var result = await getMonthlyExpensesUseCase.ExecuteAsync(month, year, cancellationToken);
+        
+        return ToActionResult(result, Ok);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetExpenseById(Guid id, CancellationToken cancellationToken)
     {
-        var expense = await expenseQueries.GetByIdAsync(id, cancellationToken);
-        if (expense == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(expense);
+        var result = await getExpenseByIdUseCase.ExecuteAsync(id, cancellationToken);
+        
+        return ToActionResult(result, Ok);
     }
 }

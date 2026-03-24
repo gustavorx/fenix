@@ -1,11 +1,10 @@
-using api.DTOs;
 using api.Entities;
 
-namespace api.Features.Expenses;
+namespace api.Features.Expenses.Shared;
 
 public static class ExpenseMapper
 {
-    public static ExpenseResponse ToResponse(Expense expense)
+    public static ExpenseResponse ToResponse(this Expense expense)
     {
         var orderedInstallments = expense.Installments
             .OrderBy(installment => installment.Number)

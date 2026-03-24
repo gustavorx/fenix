@@ -1,39 +1,47 @@
 using api.Data;
-using api.DTOs;
 using api.Entities;
+using api.Features.Expenses.Shared;
+using api.Shared;
 using api.ValueObjects;
 
-namespace api.Features.Expenses;
+namespace api.Features.Expenses.CreateExpense;
 
 public class CreateExpenseUseCase(FenixContext context)
 {
-    public async Task<CreateExpenseResult> ExecuteAsync(CreateExpenseRequest request, CancellationToken cancellationToken)
+    public async Task<Result<ExpenseResponse>> ExecuteAsync(CreateExpenseRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Description))
         {
-            return CreateExpenseResult.Failure("Description is required.");
+            return Result<ExpenseResponse>.Failure(
+                AppError.Validation("expense.description.required", "Description is required."));
         }
 
         if (request.TotalAmount <= 0)
         {
-            return CreateExpenseResult.Failure("TotalAmount must be greater than zero.");
+            return Result<ExpenseResponse>.Failure(
+                AppError.Validation("expense.total_amount.invalid", "TotalAmount must be greater than zero."));
         }
 
         if (!Money.HasValidScale(request.TotalAmount))
         {
-            return CreateExpenseResult.Failure("TotalAmount must have at most 2 decimal places.");
+            return Result<ExpenseResponse>.Failure(
+                AppError.Validation("expense.total_amount.scale", "TotalAmount must have at most 2 decimal places."));
         }
 
         var normalizedPaymentType = ExpenseRules.NormalizePaymentType(request.PaymentType);
         if (normalizedPaymentType == null)
         {
-            return CreateExpenseResult.Failure("PaymentType must be 'cash' or 'installment'.");
+            return Result<ExpenseResponse>.Failure(
+                AppError.Validation("expense.payment_type.invalid", "PaymentType must be 'cash' or 'installment'."));
         }
 
         var totalInstallments = ExpenseRules.ResolveTotalInstallments(normalizedPaymentType, request.TotalInstallments);
         if (totalInstallments == null)
         {
-            return CreateExpenseResult.Failure("TotalInstallments must be 1 for cash or greater than 1 for installment.");
+            return Result<ExpenseResponse>.Failure(
+                AppError.Validation(
+                    "expense.total_installments.invalid",
+                    "TotalInstallments must be 1 for cash or greater than 1 for installment."));
         }
 
         var totalAmount = Money.Create(request.TotalAmount);
@@ -43,14 +51,14 @@ public class CreateExpenseUseCase(FenixContext context)
             Id = Guid.NewGuid(),
             Description = request.Description.Trim(),
             TotalAmount = totalAmount,
-            Date = ExpenseRules.NormalizeDate(request.PurchaseDate),
+            Date = request.PurchaseDate.Normalize(),
             Type = normalizedPaymentType,
             InstallmentsQuantity = totalInstallments.Value,
             UserId = AppDataInitializer.DefaultUserId,
             Installments = []
         };
 
-        var firstDueDate = ExpenseRules.NormalizeDate(request.FirstDueDate ?? request.PurchaseDate);
+        var firstDueDate = (request.FirstDueDate ?? request.PurchaseDate).Normalize();
         var installmentAmounts = ExpenseRules.SplitAmount(totalAmount, totalInstallments.Value);
 
         expense.Installments = installmentAmounts
@@ -68,24 +76,6 @@ public class CreateExpenseUseCase(FenixContext context)
         context.Expenses.Add(expense);
         await context.SaveChangesAsync(cancellationToken);
 
-        return CreateExpenseResult.Success(ExpenseMapper.ToResponse(expense));
+        return Result<ExpenseResponse>.Success(expense.ToResponse());
     }
-}
-
-public sealed class CreateExpenseResult
-{
-    private CreateExpenseResult(bool isSuccess, ExpenseResponse? response, string? errorMessage)
-    {
-        IsSuccess = isSuccess;
-        Response = response;
-        ErrorMessage = errorMessage;
-    }
-
-    public bool IsSuccess { get; }
-    public ExpenseResponse? Response { get; }
-    public string? ErrorMessage { get; }
-
-    public static CreateExpenseResult Success(ExpenseResponse response) => new(true, response, null);
-
-    public static CreateExpenseResult Failure(string errorMessage) => new(false, null, errorMessage);
 }

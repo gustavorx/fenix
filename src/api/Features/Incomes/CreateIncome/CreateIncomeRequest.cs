@@ -1,4 +1,4 @@
-namespace api.DTOs;
+namespace api.Features.Incomes.CreateIncome;
 
 public class CreateIncomeRequest
 {
