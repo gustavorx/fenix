@@ -22,7 +22,7 @@ public class ExpenseController(
     {
         if (request == null)
         {
-            return BadRequest("Invalid data.");
+            return BadRequest(AppError.Validation("expense.request.invalid", "Invalid data."));
         }
 
         var result = await createExpenseUseCase.ExecuteAsync(request, cancellationToken);
