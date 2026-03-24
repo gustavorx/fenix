@@ -2,6 +2,6 @@ namespace api.Shared;
 
 public enum ErrorType
 {
-    Validation,
-    NotFound
+    Validation = 1,
+    NotFound = 2
 }
