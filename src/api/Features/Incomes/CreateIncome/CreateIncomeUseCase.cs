@@ -1,0 +1,45 @@
+﻿using api.Data;
+using api.Entities;
+using api.Features.Incomes.Shared;
+using api.Shared;
+using api.ValueObjects;
+
+namespace api.Features.Incomes.CreateIncome;
+
+public class CreateIncomeUseCase(FenixContext context)
+{
+    public async Task<Result<IncomeResponse>> ExecuteAsync(CreateIncomeRequest request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Description))
+        {
+            return Result<IncomeResponse>.Failure(
+                AppError.Validation("income.description.required", "Description is required."));    
+        }
+
+        if (request.Amount <= 0)
+        {
+            return Result<IncomeResponse>.Failure(
+                AppError.Validation("income.amount.invalid", "Amount must be greater than zero."));
+        }
+
+        if (!Money.HasValidScale(request.Amount))
+        {
+            return Result<IncomeResponse>.Failure(
+                AppError.Validation("income.amount.scale", "Amount must have at most 2 decimal places."));
+        }
+
+        var income = new Income
+        {
+            Id = Guid.NewGuid(),
+            Description = request.Description.Trim(),
+            Amount = Money.Create(request.Amount),
+            Date = request.Date.Normalize(),
+            UserId = AppDataInitializer.DefaultUserId
+        };
+
+        context.Incomes.Add(income);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return Result<IncomeResponse>.Success(income.ToResponse());
+    }
+}

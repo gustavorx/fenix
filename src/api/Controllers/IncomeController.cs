@@ -1,104 +1,48 @@
-using api.Data;
-using api.DTOs;
-using api.Entities;
-using api.ValueObjects;
+using api.Features.Incomes.CreateIncome;
+using api.Features.Incomes.GetAllIncomes;
+using api.Features.Incomes.GetIncomeById;
+using api.Shared;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers;
 
 [ApiController]
 [Route("api/incomes")]
-public class IncomeController(FenixContext context) : ControllerBase
+public class IncomeController(
+    CreateIncomeUseCase createIncomeUseCase,
+    GetIncomeByIdUseCase getIncomeByIdUseCase,
+    GetAllIncomesUseCase getAllIncomesUseCase) : ApiControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateIncome(
-        [FromBody] CreateIncomeRequest? request)
+        [FromBody] CreateIncomeRequest? request,
+        CancellationToken cancellationToken)
     {
         if (request == null)
         {
-            return BadRequest("Invalid data.");
+            return BadRequest(AppError.Validation("income.request.invalid", "Invalid data."));
         }
 
-        if (string.IsNullOrWhiteSpace(request.Description))
-        {
-            return BadRequest("Description is required.");
-        }
-
-        if (request.Amount <= 0)
-        {
-            return BadRequest("Amount must be greater than zero.");
-        }
-
-        if (!Money.HasValidScale(request.Amount))
-        {
-            return BadRequest("Amount must have at most 2 decimal places.");
-        }
-
-        var income = new Income
-        {
-            Id = Guid.NewGuid(),
-            Description = request.Description.Trim(),
-            Amount = Money.Create(request.Amount),
-            Date = NormalizeDate(request.Date),
-            UserId = AppDataInitializer.DefaultUserId
-        };
-
-        context.Incomes.Add(income);
-        await context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetIncomeById), new { id = income.Id }, Map(income));
+        var result = await createIncomeUseCase.ExecuteAsync(request, cancellationToken);
+        
+        return ToActionResult(
+            result,
+            response => CreatedAtAction(nameof(GetIncomeById), new { id = response.Id }, response));
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetIncomes()
+    public async Task<IActionResult> GetIncomes(CancellationToken cancellationToken)
     {
-        var incomes = await context.Incomes
-            .AsNoTracking()
-            .OrderByDescending(income => income.Date)
-            .ToListAsync();
-
-        return Ok(incomes.Select(Map));
+        var incomes = await getAllIncomesUseCase.ExecuteAsync(cancellationToken);
+        
+        return Ok(incomes);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetIncomeById(Guid id)
+    public async Task<IActionResult> GetIncomeById(Guid id, CancellationToken cancellationToken)
     {
-        var income = await context.Incomes
-            .AsNoTracking()
-            .FirstOrDefaultAsync(item => item.Id == id);
-
-        if (income == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(Map(income));
-    }
-
-    private static IncomeResponse Map(Income income)
-    {
-        return new IncomeResponse
-        {
-            Id = income.Id,
-            Description = income.Description,
-            Amount = income.Amount.Value,
-            Date = income.Date
-        };
-    }
-
-    private static DateTime NormalizeDate(DateTime? date)
-    {
-        if (date == null)
-        {
-            return DateTime.UtcNow;
-        }
-
-        return date.Value.Kind switch
-        {
-            DateTimeKind.Utc => date.Value,
-            DateTimeKind.Local => date.Value.ToUniversalTime(),
-            _ => DateTime.SpecifyKind(date.Value, DateTimeKind.Utc)
-        };
+        var result = await getIncomeByIdUseCase.ExecuteAsync(id, cancellationToken);
+        
+        return ToActionResult(result, Ok);
     }
 }
