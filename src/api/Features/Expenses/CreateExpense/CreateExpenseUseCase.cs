@@ -51,14 +51,14 @@ public class CreateExpenseUseCase(FenixContext context)
             Id = Guid.NewGuid(),
             Description = request.Description.Trim(),
             TotalAmount = totalAmount,
-            Date = ExpenseRules.NormalizeDate(request.PurchaseDate),
+            Date = request.PurchaseDate.Normalize(),
             Type = normalizedPaymentType,
             InstallmentsQuantity = totalInstallments.Value,
             UserId = AppDataInitializer.DefaultUserId,
             Installments = []
         };
 
-        var firstDueDate = ExpenseRules.NormalizeDate(request.FirstDueDate ?? request.PurchaseDate);
+        var firstDueDate = (request.FirstDueDate ?? request.PurchaseDate).Normalize();
         var installmentAmounts = ExpenseRules.SplitAmount(totalAmount, totalInstallments.Value);
 
         expense.Installments = installmentAmounts
@@ -76,6 +76,6 @@ public class CreateExpenseUseCase(FenixContext context)
         context.Expenses.Add(expense);
         await context.SaveChangesAsync(cancellationToken);
 
-        return Result<ExpenseResponse>.Success(ExpenseMapper.ToResponse(expense));
+        return Result<ExpenseResponse>.Success(expense.ToResponse());
     }
 }
