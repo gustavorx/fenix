@@ -1,6 +1,7 @@
 using api.Features.Incomes.CreateIncome;
 using api.Features.Incomes.GetAllIncomes;
 using api.Features.Incomes.GetIncomeById;
+using api.Features.Incomes.GetMonthlyIncomes;
 using api.Shared;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,7 +12,8 @@ namespace api.Controllers;
 public class IncomeController(
     CreateIncomeUseCase createIncomeUseCase,
     GetIncomeByIdUseCase getIncomeByIdUseCase,
-    GetAllIncomesUseCase getAllIncomesUseCase) : ApiControllerBase
+    GetAllIncomesUseCase getAllIncomesUseCase,
+    GetMonthlyIncomesUseCase getMonthlyIncomesUseCase) : ApiControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateIncome(
@@ -36,6 +38,17 @@ public class IncomeController(
         var incomes = await getAllIncomesUseCase.ExecuteAsync(cancellationToken);
         
         return Ok(incomes);
+    }
+
+    [HttpGet("monthly")]
+    public async Task<IActionResult> GetMonthlyIncomes(
+        [FromQuery] int month,
+        [FromQuery] int year,
+        CancellationToken cancellationToken)
+    {
+        var result = await getMonthlyIncomesUseCase.ExecuteAsync(month, year, cancellationToken);
+
+        return ToActionResult(result, Ok);
     }
 
     [HttpGet("{id:guid}")]
