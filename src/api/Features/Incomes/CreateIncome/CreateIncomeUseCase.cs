@@ -10,22 +10,26 @@ public class CreateIncomeUseCase(FenixContext context)
 {
     public async Task<Result<IncomeResponse>> ExecuteAsync(CreateIncomeRequest request, CancellationToken cancellationToken)
     {
+        var errors = new List<AppError>();
+
         if (string.IsNullOrWhiteSpace(request.Description))
         {
-            return Result<IncomeResponse>.Failure(
-                AppError.Validation("income.description.required", "Description is required."));    
+            errors.Add(AppError.Validation("income.description.required", "Description is required."));
         }
 
         if (request.Amount <= 0)
         {
-            return Result<IncomeResponse>.Failure(
-                AppError.Validation("income.amount.invalid", "Amount must be greater than zero."));
+            errors.Add(AppError.Validation("income.amount.invalid", "Amount must be greater than zero."));
         }
 
         if (!Money.HasValidScale(request.Amount))
         {
-            return Result<IncomeResponse>.Failure(
-                AppError.Validation("income.amount.scale", "Amount must have at most 2 decimal places."));
+            errors.Add(AppError.Validation("income.amount.scale", "Amount must have at most 2 decimal places."));
+        }
+
+        if (errors.Count > 0)
+        {
+            return Result<IncomeResponse>.Failure(errors);
         }
 
         var income = new Income

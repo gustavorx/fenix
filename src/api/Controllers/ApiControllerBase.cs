@@ -12,11 +12,11 @@ public abstract class ApiControllerBase : ControllerBase
             return onSuccess(result.Value!);
         }
 
-        return result.Error!.Type switch
+        return result.ErrorType switch
         {
-            ErrorType.Validation => BadRequest(result.Error),
-            ErrorType.NotFound => NotFound(result.Error),
-            _ => BadRequest(result.Error)
+            ErrorType.Validation => BadRequest(new { errors = result.Errors }),
+            ErrorType.NotFound => NotFound(new { errors = result.Errors }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError)
         };
     }
 }
