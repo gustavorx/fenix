@@ -6,6 +6,7 @@ using api.Features.Expenses.GetMonthlyExpenses;
 using api.Features.Incomes.CreateIncome;
 using api.Features.Incomes.GetAllIncomes;
 using api.Features.Incomes.GetIncomeById;
+using api.Features.Incomes.GetMonthlyIncomes;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,7 @@ builder.Services.AddScoped<GetMonthlyExpensesUseCase>();
 builder.Services.AddScoped<CreateIncomeUseCase>();
 builder.Services.AddScoped<GetAllIncomesUseCase>();
 builder.Services.AddScoped<GetIncomeByIdUseCase>();
+builder.Services.AddScoped<GetMonthlyIncomesUseCase>();
 
 builder.Services.AddControllers();
 
