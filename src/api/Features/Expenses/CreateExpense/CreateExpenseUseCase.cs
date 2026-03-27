@@ -6,48 +6,14 @@ using api.ValueObjects;
 
 namespace api.Features.Expenses.CreateExpense;
 
-public class CreateExpenseUseCase(FenixContext context)
+public class CreateExpenseUseCase(
+    FenixContext context,
+    IValidator<CreateExpenseRequest> validator)
 {
-    public async Task<Result<ExpenseResponse>> ExecuteAsync(CreateExpenseRequest request, CancellationToken cancellationToken)
+    public async Task<Result<ExpenseResponse>> ExecuteAsync(CreateExpenseRequest request,
+        CancellationToken cancellationToken)
     {
-        var errors = new List<AppError>();
-
-        if (string.IsNullOrWhiteSpace(request.Description))
-        {
-            errors.Add(AppError.Validation("expense.description.required", "Description is required."));
-        }
-
-        if (request.TotalAmount <= 0)
-        {
-            errors.Add(AppError.Validation("expense.total_amount.invalid", "TotalAmount must be greater than zero."));
-        }
-
-        if (!Money.HasValidScale(request.TotalAmount))
-        {
-            errors.Add(AppError.Validation("expense.total_amount.scale", "TotalAmount must have at most 2 decimal places."));
-        }
-
-        var paymentType = request.PaymentType;
-        var hasValidPaymentType = paymentType != null
-            && Enum.IsDefined(paymentType.Value);
-
-        if (!hasValidPaymentType)
-        {
-            errors.Add(AppError.Validation("expense.payment_type.invalid", "PaymentType must be 1 (Cash) or 2 (Installment)."));
-        }
-
-        int? totalInstallments = null;
-        if (hasValidPaymentType)
-        {
-            totalInstallments = ExpenseRules.ResolveTotalInstallments(paymentType!.Value, request.TotalInstallments);
-            if (totalInstallments == null)
-            {
-                errors.Add(AppError.Validation(
-                    "expense.total_installments.invalid",
-                    "TotalInstallments must be 1 for cash or greater than 1 for installment."));
-            }
-        }
-
+        var errors = validator.Validate(request);
         if (errors.Count > 0)
         {
             return Result<ExpenseResponse>.Failure(errors);
@@ -55,6 +21,8 @@ public class CreateExpenseUseCase(FenixContext context)
 
         var totalAmount = Money.Create(request.TotalAmount);
         var purchaseDate = request.PurchaseDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        var paymentType = request.PaymentType!.Value;
+        var totalInstallments = ExpenseRules.ResolveTotalInstallments(paymentType, request.TotalInstallments)!.Value;
 
         var expense = new Expense
         {
@@ -62,14 +30,14 @@ public class CreateExpenseUseCase(FenixContext context)
             Description = request.Description.Trim(),
             TotalAmount = totalAmount,
             PurchaseDate = purchaseDate,
-            PaymentType = paymentType!.Value,
-            InstallmentsQuantity = totalInstallments!.Value,
+            PaymentType = paymentType,
+            InstallmentsQuantity = totalInstallments,
             UserId = AppDataInitializer.DefaultUserId,
             Installments = []
         };
 
         var firstDueDate = request.FirstDueDate ?? purchaseDate;
-        var installmentAmounts = ExpenseRules.SplitAmount(totalAmount, totalInstallments!.Value);
+        var installmentAmounts = ExpenseRules.SplitAmount(totalAmount, totalInstallments);
 
         expense.Installments = installmentAmounts
             .Select((amount, index) => new Installment
