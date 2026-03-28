@@ -45,7 +45,7 @@ public class GetMonthlyExpensesUseCase(FenixContext context)
                     TotalInstallments = installment.Expense.InstallmentsQuantity ?? 1,
                     InstallmentNumber = installment.Number,
                     InstallmentAmount = installment.Amount.Value,
-                    PurchaseDate = installment.Expense.Date,
+                    PurchaseDate = installment.Expense.PurchaseDate,
                     DueDate = installment.DueDate,
                     Paid = installment.Paid
                 }).ToList()

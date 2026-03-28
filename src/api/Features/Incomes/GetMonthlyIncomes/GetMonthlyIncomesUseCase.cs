@@ -24,8 +24,8 @@ public class GetMonthlyIncomesUseCase(FenixContext context)
 
         var incomes = await context.Incomes
             .AsNoTracking()
-            .Where(income => income.Date.Month == month && income.Date.Year == year)
-            .OrderByDescending(income => income.Date)
+            .Where(income => income.ReceivedDate.Month == month && income.ReceivedDate.Year == year)
+            .OrderByDescending(income => income.ReceivedDate)
             .ToListAsync(cancellationToken);
 
         return Result<MonthlyIncomesResponse>.Success(

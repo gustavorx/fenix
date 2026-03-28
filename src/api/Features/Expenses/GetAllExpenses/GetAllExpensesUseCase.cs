@@ -11,7 +11,7 @@ public class GetAllExpensesUseCase(FenixContext context)
         var expenses = await context.Expenses
             .AsNoTracking()
             .Include(expense => expense.Installments)
-            .OrderByDescending(expense => expense.Date)
+            .OrderByDescending(expense => expense.PurchaseDate)
             .ToListAsync(cancellationToken);
 
         return expenses.Select(ExpenseMapper.ToResponse).ToList();

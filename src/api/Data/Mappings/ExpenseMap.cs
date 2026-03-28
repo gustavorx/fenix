@@ -19,7 +19,8 @@ public class ExpenseMap : IEntityTypeConfiguration<Expense>
         builder.Property(e => e.TotalAmount)
             .IsRequired();
 
-        builder.Property(e => e.Date)
+        builder.Property(e => e.PurchaseDate)
+            .HasColumnType("date")
             .IsRequired();
 
         builder.Property(e => e.Type)
