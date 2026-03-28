@@ -19,37 +19,14 @@ public class CreateExpenseUseCase(
             return Result<ExpenseResponse>.Failure(errors);
         }
 
-        var totalAmount = Money.Create(request.TotalAmount);
-        var purchaseDate = request.PurchaseDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
-        var paymentType = request.PaymentType!.Value;
-        var totalInstallments = ExpenseRules.ResolveTotalInstallments(paymentType, request.TotalInstallments)!.Value;
-
-        var expense = new Expense
-        {
-            Id = Guid.NewGuid(),
-            Description = request.Description.Trim(),
-            TotalAmount = totalAmount,
-            PurchaseDate = purchaseDate,
-            PaymentType = paymentType,
-            InstallmentsQuantity = totalInstallments,
-            UserId = AppDataInitializer.DefaultUserId,
-            Installments = []
-        };
-
-        var firstDueDate = request.FirstDueDate ?? purchaseDate;
-        var installmentAmounts = ExpenseRules.SplitAmount(totalAmount, totalInstallments);
-
-        expense.Installments = installmentAmounts
-            .Select((amount, index) => new Installment
-            {
-                Id = Guid.NewGuid(),
-                Number = index + 1,
-                Amount = amount,
-                DueDate = firstDueDate.AddMonths(index),
-                Paid = false,
-                ExpenseId = expense.Id
-            })
-            .ToList();
+        var expense = Expense.Create(
+            request.Description!,
+            Money.Create(request.TotalAmount),
+            request.PurchaseDate!.Value,
+            request.PaymentType!.Value,
+            request.TotalInstallments,
+            request.FirstDueDate,
+            AppDataInitializer.DefaultUserId);
 
         context.Expenses.Add(expense);
         await context.SaveChangesAsync(cancellationToken);

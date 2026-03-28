@@ -1,4 +1,5 @@
 using api.Data;
+using api.Features.Expenses.Shared;
 using api.Shared;
 using api.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -35,20 +36,7 @@ public class GetMonthlyExpensesUseCase(FenixContext context)
                 Month = month,
                 Year = year,
                 TotalAmount = installments.Aggregate(Money.Zero, (total, installment) => total + installment.Amount).Value,
-                Installments = installments.Select(installment => new MonthlyExpenseInstallmentResponse
-                {
-                    InstallmentId = installment.Id,
-                    ExpenseId = installment.ExpenseId,
-                    Description = installment.Expense.Description,
-                    PaymentType = installment.Expense.PaymentType,
-                    TotalAmount = installment.Expense.TotalAmount.Value,
-                    TotalInstallments = installment.Expense.InstallmentsQuantity ?? 1,
-                    InstallmentNumber = installment.Number,
-                    InstallmentAmount = installment.Amount.Value,
-                    PurchaseDate = installment.Expense.PurchaseDate,
-                    DueDate = installment.DueDate,
-                    Paid = installment.Paid
-                }).ToList()
+                Installments = installments.Select(installment => installment.ToMonthlyInstallmentResponse()).ToList()
             });
     }
 }

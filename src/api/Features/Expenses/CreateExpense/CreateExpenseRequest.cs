@@ -4,7 +4,7 @@ namespace api.Features.Expenses.CreateExpense;
 
 public class CreateExpenseRequest
 {
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; }
     public decimal TotalAmount { get; set; }
     public DateOnly? PurchaseDate { get; set; }
     public ExpensePaymentType? PaymentType { get; set; }
