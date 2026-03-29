@@ -9,14 +9,15 @@
 - [ ] [5. Define Expense And Installment Mutation Rules](#5-define-expense-and-installment-mutation-rules)
 - [ ] [6. Decide Expense And Installment Mutation Scenarios](#6-decide-expense-and-installment-mutation-scenarios)
 - [ ] [7. Auth And Authorization Phase 1](#7-auth-and-authorization-phase-1)
-- [ ] [8. HTTP Error Response](#8-http-error-response)
-- [ ] [9. Add Expense Update Endpoint](#9-add-expense-update-endpoint)
-- [ ] [10. Add Expense Delete Endpoint](#10-add-expense-delete-endpoint)
-- [ ] [11. Add Installment Update Endpoint](#11-add-installment-update-endpoint)
-- [ ] [12. Add Installment Delete Endpoint](#12-add-installment-delete-endpoint)
-- [ ] [13. Add Income Update Endpoint](#13-add-income-update-endpoint)
-- [ ] [14. Add Income Delete Endpoint](#14-add-income-delete-endpoint)
-- [ ] [15. Auth And Authorization Phase 2](#15-auth-and-authorization-phase-2)
+- [ ] [8. Add Observability Foundation](#8-add-observability-foundation)
+- [ ] [9. HTTP Error Response](#9-http-error-response)
+- [ ] [10. Add Expense Update Endpoint](#10-add-expense-update-endpoint)
+- [ ] [11. Add Expense Delete Endpoint](#11-add-expense-delete-endpoint)
+- [ ] [12. Add Installment Update Endpoint](#12-add-installment-update-endpoint)
+- [ ] [13. Add Installment Delete Endpoint](#13-add-installment-delete-endpoint)
+- [ ] [14. Add Income Update Endpoint](#14-add-income-update-endpoint)
+- [ ] [15. Add Income Delete Endpoint](#15-add-income-delete-endpoint)
+- [ ] [16. Auth And Authorization Phase 2](#16-auth-and-authorization-phase-2)
 
 ## 1. Review Date And Timezone Modeling
 
@@ -123,7 +124,37 @@ Introduce an application-facing current-user abstraction, for example `ICurrentU
 
 Keep authorization rules explicit in the application layer so the transport-level authentication mechanism can change later without rewriting the use cases.
 
-## 8. HTTP Error Response
+## 8. Add Observability Foundation
+
+Context
+
+The API still lacks basic observability for HTTP requests, database operations, failures, and resource consumption, which makes performance analysis and capacity planning mostly guesswork.
+
+Motivation
+
+Future load tests will be much more useful if the application already exposes request latency, database latency, error rates, throughput, and enough tracing to explain where time is being spent.
+
+Next step
+
+Introduce an observability foundation before running meaningful load tests. At minimum, capture structured logs, request duration, database query duration, error counts, and correlation or trace identifiers. Prefer a design that can evolve into metrics dashboards and distributed tracing later, such as OpenTelemetry-based instrumentation.
+
+Track, at minimum:
+
+- HTTP request count, duration, and status code distribution
+- Error response count by endpoint and error type
+- Database command count and duration
+- Trace or correlation identifiers across request and persistence layers
+- Basic process telemetry such as CPU and memory where feasible in the hosting environment
+
+Suggested phases:
+
+- Phase 1: Add structured logging, correlation identifiers, and basic request logging for the HTTP layer.
+- Phase 2: Add metrics for HTTP requests, status codes, error rates, and database command duration.
+- Phase 3: Add tracing for HTTP requests and database operations, preferably with OpenTelemetry-compatible instrumentation.
+- Phase 4: Add local dashboards and telemetry collection infrastructure, such as an OpenTelemetry Collector plus a metrics and tracing backend.
+- Phase 5: Define a repeatable load-test baseline and use observability data to measure throughput, latency, error rate, and saturation under load.
+
+## 9. HTTP Error Response
 
 Context
 
@@ -137,7 +168,7 @@ Next step
 
 Create a dedicated HTTP error response model, for example `ApiErrorResponse`, and centralize error payload construction in the controller base or a mapper.
 
-## 9. Add Expense Update Endpoint
+## 10. Add Expense Update Endpoint
 
 Context
 
@@ -151,7 +182,7 @@ Next step
 
 Implement the request model, validator, use case, and controller endpoint for updating expenses after the mutation rules and application-level prerequisites are settled.
 
-## 10. Add Expense Delete Endpoint
+## 11. Add Expense Delete Endpoint
 
 Context
 
@@ -165,7 +196,7 @@ Next step
 
 Implement the use case and controller endpoint for deleting expenses after the expense and installment mutation rules are defined.
 
-## 11. Add Installment Update Endpoint
+## 12. Add Installment Update Endpoint
 
 Context
 
@@ -179,7 +210,7 @@ Next step
 
 Implement the request model, validator, use case, and controller endpoint for updating installments after the mutation scenarios are defined.
 
-## 12. Add Installment Delete Endpoint
+## 13. Add Installment Delete Endpoint
 
 Context
 
@@ -193,7 +224,7 @@ Next step
 
 Implement the use case and controller endpoint for deleting installments only after defining whether individual deletion is allowed and how the parent expense should react.
 
-## 13. Add Income Update Endpoint
+## 14. Add Income Update Endpoint
 
 Context
 
@@ -207,7 +238,7 @@ Next step
 
 Implement the request model, validator, use case, and controller endpoint for updating incomes after the shared application-layer foundations are in place.
 
-## 14. Add Income Delete Endpoint
+## 15. Add Income Delete Endpoint
 
 Context
 
@@ -221,7 +252,7 @@ Next step
 
 Implement the use case and controller endpoint for deleting incomes after the shared application-layer foundations are in place.
 
-## 15. Auth And Authorization Phase 2
+## 16. Auth And Authorization Phase 2
 
 Context
 
