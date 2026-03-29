@@ -23,9 +23,8 @@ public class ExpenseMap : IEntityTypeConfiguration<Expense>
             .HasColumnType("date")
             .IsRequired();
 
-        builder.Property(e => e.Type)
-            .IsRequired()
-            .HasMaxLength(20);
+        builder.Property(e => e.PaymentType)
+            .IsRequired();
 
         builder.Property(e => e.InstallmentsQuantity)
             .IsRequired(false);

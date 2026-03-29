@@ -1,30 +1,13 @@
+using api.Entities;
 using api.ValueObjects;
 
 namespace api.Features.Expenses.Shared;
 
 public static class ExpenseRules
 {
-    public static string? NormalizePaymentType(string paymentType)
+    public static int? ResolveTotalInstallments(ExpensePaymentType paymentType, int? totalInstallments)
     {
-        if (string.IsNullOrWhiteSpace(paymentType))
-        {
-            return null;
-        }
-
-        return paymentType.Trim().ToLowerInvariant() switch
-        {
-            "cash" => "Cash",
-            "avista" => "Cash",
-            "a vista" => "Cash",
-            "installment" => "Installment",
-            "parcelado" => "Installment",
-            _ => null
-        };
-    }
-
-    public static int? ResolveTotalInstallments(string paymentType, int? totalInstallments)
-    {
-        if (paymentType == "Cash")
+        if (paymentType == ExpensePaymentType.Cash)
         {
             return 1;
         }

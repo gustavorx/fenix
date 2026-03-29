@@ -1,3 +1,5 @@
+using api.Entities;
+
 namespace api.Features.Expenses.GetMonthlyExpenses;
 
 public class MonthlyExpensesResponse
@@ -13,7 +15,7 @@ public class MonthlyExpenseInstallmentResponse
     public Guid InstallmentId { get; init; }
     public Guid ExpenseId { get; init; }
     public string Description { get; init; } = string.Empty;
-    public string PaymentType { get; init; } = string.Empty;
+    public ExpensePaymentType PaymentType { get; init; }
     public decimal TotalAmount { get; init; }
     public int TotalInstallments { get; init; }
     public int InstallmentNumber { get; init; }

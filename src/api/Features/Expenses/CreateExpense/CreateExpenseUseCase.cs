@@ -27,16 +27,19 @@ public class CreateExpenseUseCase(FenixContext context)
             errors.Add(AppError.Validation("expense.total_amount.scale", "TotalAmount must have at most 2 decimal places."));
         }
 
-        var normalizedPaymentType = ExpenseRules.NormalizePaymentType(request.PaymentType);
-        if (normalizedPaymentType == null)
+        var paymentType = request.PaymentType;
+        var hasValidPaymentType = paymentType != null
+            && Enum.IsDefined(paymentType.Value);
+
+        if (!hasValidPaymentType)
         {
-            errors.Add(AppError.Validation("expense.payment_type.invalid", "PaymentType must be 'cash' or 'installment'."));
+            errors.Add(AppError.Validation("expense.payment_type.invalid", "PaymentType must be 1 (Cash) or 2 (Installment)."));
         }
 
         int? totalInstallments = null;
-        if (normalizedPaymentType != null)
+        if (hasValidPaymentType)
         {
-            totalInstallments = ExpenseRules.ResolveTotalInstallments(normalizedPaymentType, request.TotalInstallments);
+            totalInstallments = ExpenseRules.ResolveTotalInstallments(paymentType!.Value, request.TotalInstallments);
             if (totalInstallments == null)
             {
                 errors.Add(AppError.Validation(
@@ -59,7 +62,7 @@ public class CreateExpenseUseCase(FenixContext context)
             Description = request.Description.Trim(),
             TotalAmount = totalAmount,
             PurchaseDate = purchaseDate,
-            Type = normalizedPaymentType!,
+            PaymentType = paymentType!.Value,
             InstallmentsQuantity = totalInstallments!.Value,
             UserId = AppDataInitializer.DefaultUserId,
             Installments = []
