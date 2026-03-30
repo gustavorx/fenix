@@ -19,6 +19,7 @@ public class InstallmentMap : IEntityTypeConfiguration<Installment>
             .IsRequired();
 
         builder.Property(i => i.DueDate)
+            .HasColumnType("date")
             .IsRequired();
 
         builder.Property(i => i.Paid)

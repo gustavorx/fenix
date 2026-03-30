@@ -19,7 +19,8 @@ public class IncomeMap : IEntityTypeConfiguration<Income>
         builder.Property(i => i.Amount)
             .IsRequired();
 
-        builder.Property(i => i.Date)
+        builder.Property(i => i.ReceivedDate)
+            .HasColumnType("date")
             .IsRequired();
 
         builder.HasOne(i => i.User)

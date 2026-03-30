@@ -11,7 +11,7 @@ public static class IncomeMapper
             Id = income.Id,
             Description = income.Description,
             Amount = income.Amount.Value,
-            Date = income.Date
+            ReceivedDate = income.ReceivedDate
         };
     }
 }

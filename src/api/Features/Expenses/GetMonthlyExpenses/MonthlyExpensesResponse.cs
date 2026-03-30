@@ -18,7 +18,7 @@ public class MonthlyExpenseInstallmentResponse
     public int TotalInstallments { get; init; }
     public int InstallmentNumber { get; init; }
     public decimal InstallmentAmount { get; init; }
-    public DateTime PurchaseDate { get; init; }
-    public DateTime DueDate { get; init; }
+    public DateOnly PurchaseDate { get; init; }
+    public DateOnly DueDate { get; init; }
     public bool Paid { get; init; }
 }

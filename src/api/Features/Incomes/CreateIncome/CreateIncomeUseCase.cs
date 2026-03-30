@@ -37,7 +37,7 @@ public class CreateIncomeUseCase(FenixContext context)
             Id = Guid.NewGuid(),
             Description = request.Description.Trim(),
             Amount = Money.Create(request.Amount),
-            Date = request.Date.Normalize(),
+            ReceivedDate = request.ReceivedDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
             UserId = AppDataInitializer.DefaultUserId
         };
 

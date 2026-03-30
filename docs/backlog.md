@@ -2,7 +2,7 @@
 
 ## Summary
 
-- [ ] [1. Review Date And Timezone Modeling](#1-review-date-and-timezone-modeling)
+- [x] ~~[1. Review Date And Timezone Modeling](#1-review-date-and-timezone-modeling)~~
 - [ ] [2. Replace Payment Type Strings With Enums](#2-replace-payment-type-strings-with-enums)
 - [ ] [3. Extract Validation From Use Cases](#3-extract-validation-from-use-cases)
 - [ ] [4. Refactor To Rich Domain Model](#4-refactor-to-rich-domain-model)

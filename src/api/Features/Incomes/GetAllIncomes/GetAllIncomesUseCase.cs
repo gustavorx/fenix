@@ -10,7 +10,7 @@ public class GetAllIncomesUseCase(FenixContext context)
     {
         var incomes = await context.Incomes
             .AsNoTracking()
-            .OrderByDescending(income => income.Date)
+            .OrderByDescending(income => income.ReceivedDate)
             .ToListAsync(cancellationToken);
         
         return incomes.Select(IncomeMapper.ToResponse).ToList();

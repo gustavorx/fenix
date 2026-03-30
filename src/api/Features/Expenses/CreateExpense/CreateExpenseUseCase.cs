@@ -51,20 +51,21 @@ public class CreateExpenseUseCase(FenixContext context)
         }
 
         var totalAmount = Money.Create(request.TotalAmount);
+        var purchaseDate = request.PurchaseDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
 
         var expense = new Expense
         {
             Id = Guid.NewGuid(),
             Description = request.Description.Trim(),
             TotalAmount = totalAmount,
-            Date = request.PurchaseDate.Normalize(),
+            PurchaseDate = purchaseDate,
             Type = normalizedPaymentType!,
             InstallmentsQuantity = totalInstallments!.Value,
             UserId = AppDataInitializer.DefaultUserId,
             Installments = []
         };
 
-        var firstDueDate = (request.FirstDueDate ?? request.PurchaseDate).Normalize();
+        var firstDueDate = request.FirstDueDate ?? purchaseDate;
         var installmentAmounts = ExpenseRules.SplitAmount(totalAmount, totalInstallments!.Value);
 
         expense.Installments = installmentAmounts
