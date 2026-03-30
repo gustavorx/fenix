@@ -6,27 +6,11 @@ using api.ValueObjects;
 
 namespace api.Features.Incomes.CreateIncome;
 
-public class CreateIncomeUseCase(FenixContext context)
+public class CreateIncomeUseCase(FenixContext context, IValidator<CreateIncomeRequest> validator)
 {
     public async Task<Result<IncomeResponse>> ExecuteAsync(CreateIncomeRequest request, CancellationToken cancellationToken)
     {
-        var errors = new List<AppError>();
-
-        if (string.IsNullOrWhiteSpace(request.Description))
-        {
-            errors.Add(AppError.Validation("income.description.required", "Description is required."));
-        }
-
-        if (request.Amount <= 0)
-        {
-            errors.Add(AppError.Validation("income.amount.invalid", "Amount must be greater than zero."));
-        }
-
-        if (!Money.HasValidScale(request.Amount))
-        {
-            errors.Add(AppError.Validation("income.amount.scale", "Amount must have at most 2 decimal places."));
-        }
-
+        var errors = validator.Validate(request);
         if (errors.Count > 0)
         {
             return Result<IncomeResponse>.Failure(errors);
