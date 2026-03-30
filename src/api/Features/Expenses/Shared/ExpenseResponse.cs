@@ -1,3 +1,5 @@
+using api.Entities;
+
 namespace api.Features.Expenses.Shared;
 
 public class ExpenseResponse
@@ -6,7 +8,7 @@ public class ExpenseResponse
     public string Description { get; init; } = string.Empty;
     public decimal TotalAmount { get; init; }
     public DateOnly PurchaseDate { get; init; }
-    public string PaymentType { get; init; } = string.Empty;
+    public ExpensePaymentType PaymentType { get; init; }
     public int TotalInstallments { get; init; }
     public IReadOnlyCollection<InstallmentResponse> Installments { get; init; } = [];
 }

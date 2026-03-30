@@ -40,7 +40,7 @@ public class GetMonthlyExpensesUseCase(FenixContext context)
                     InstallmentId = installment.Id,
                     ExpenseId = installment.ExpenseId,
                     Description = installment.Expense.Description,
-                    PaymentType = installment.Expense.Type,
+                    PaymentType = installment.Expense.PaymentType,
                     TotalAmount = installment.Expense.TotalAmount.Value,
                     TotalInstallments = installment.Expense.InstallmentsQuantity ?? 1,
                     InstallmentNumber = installment.Number,

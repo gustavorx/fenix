@@ -16,7 +16,7 @@ public static class ExpenseMapper
             Description = expense.Description,
             TotalAmount = expense.TotalAmount.Value,
             PurchaseDate = expense.PurchaseDate,
-            PaymentType = expense.Type,
+            PaymentType = expense.PaymentType,
             TotalInstallments = expense.InstallmentsQuantity ?? orderedInstallments.Count,
             Installments = orderedInstallments.Select(ToInstallmentResponse).ToList()
         };
