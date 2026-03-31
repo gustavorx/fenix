@@ -2,21 +2,18 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using api.Data;
 
 #nullable disable
 
-namespace api.Migrations
+namespace api.src.api.Migrations
 {
     [DbContext(typeof(FenixContext))]
-    [Migration("20250715022644_InitialCreate")]
-    partial class InitialCreate
+    partial class FenixContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,24 +58,22 @@ namespace api.Migrations
                     b.Property<Guid?>("CardId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<int?>("InstallmentsQuantity")
+                    b.Property<int>("InstallmentsQuantity")
                         .HasColumnType("integer");
+
+                    b.Property<int>("PaymentType")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("PurchaseDate")
+                        .HasColumnType("date");
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -131,13 +126,13 @@ namespace api.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<DateOnly>("ReceivedDate")
+                        .HasColumnType("date");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -158,8 +153,8 @@ namespace api.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("DueDate")
+                        .HasColumnType("date");
 
                     b.Property<Guid>("ExpenseId")
                         .HasColumnType("uuid");

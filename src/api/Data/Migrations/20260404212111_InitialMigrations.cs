@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace api.Migrations
+namespace api.src.api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigrations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -53,7 +53,7 @@ namespace api.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Description = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ReceivedDate = table.Column<DateOnly>(type: "date", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
@@ -95,9 +95,9 @@ namespace api.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Description = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     TotalAmount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Type = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    InstallmentsQuantity = table.Column<int>(type: "integer", nullable: true),
+                    PurchaseDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    PaymentType = table.Column<int>(type: "integer", nullable: false),
+                    InstallmentsQuantity = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     CardId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
@@ -153,7 +153,7 @@ namespace api.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Number = table.Column<int>(type: "integer", nullable: false),
                     Amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                    DueDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DueDate = table.Column<DateOnly>(type: "date", nullable: false),
                     Paid = table.Column<bool>(type: "boolean", nullable: false),
                     ExpenseId = table.Column<Guid>(type: "uuid", nullable: false)
                 },

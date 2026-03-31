@@ -9,11 +9,11 @@ using api.Data;
 
 #nullable disable
 
-namespace api.Migrations
+namespace api.src.api.Migrations
 {
     [DbContext(typeof(FenixContext))]
-    [Migration("20260329225513_ReviewDateOnlyModeling")]
-    partial class ReviewDateOnlyModeling
+    [Migration("20260404212111_InitialMigrations")]
+    partial class InitialMigrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,7 +66,10 @@ namespace api.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<int?>("InstallmentsQuantity")
+                    b.Property<int>("InstallmentsQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PaymentType")
                         .HasColumnType("integer");
 
                     b.Property<DateOnly>("PurchaseDate")
@@ -74,11 +77,6 @@ namespace api.Migrations
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");

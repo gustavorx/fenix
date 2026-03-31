@@ -27,7 +27,7 @@ public class ExpenseMap : IEntityTypeConfiguration<Expense>
             .IsRequired();
 
         builder.Property(e => e.InstallmentsQuantity)
-            .IsRequired(false);
+            .IsRequired();
 
         builder.HasOne(e => e.User)
             .WithMany(u => u.Expenses)
