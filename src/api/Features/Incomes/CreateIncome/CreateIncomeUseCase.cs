@@ -1,3 +1,4 @@
+using api.Auth;
 using api.Data;
 using api.Entities;
 using api.Features.Incomes.Shared;
@@ -6,7 +7,10 @@ using api.ValueObjects;
 
 namespace api.Features.Incomes.CreateIncome;
 
-public class CreateIncomeUseCase(FenixContext context, IValidator<CreateIncomeRequest> validator)
+public class CreateIncomeUseCase(
+    FenixContext context,
+    ICurrentUser currentUser,
+    IValidator<CreateIncomeRequest> validator)
 {
     public async Task<Result<IncomeResponse>> ExecuteAsync(CreateIncomeRequest request, CancellationToken cancellationToken)
     {
@@ -20,7 +24,7 @@ public class CreateIncomeUseCase(FenixContext context, IValidator<CreateIncomeRe
             request.Description!,
             Money.Create(request.Amount),
             request.ReceivedDate!.Value,
-            AppDataInitializer.DefaultUserId);
+            currentUser.UserId);
 
         context.Incomes.Add(income);
         await context.SaveChangesAsync(cancellationToken);

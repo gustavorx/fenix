@@ -8,7 +8,7 @@
 - [x] ~~[4. Refactor To Rich Domain Model](#4-refactor-to-rich-domain-model)~~
 - [x] ~~[5. Define Expense And Installment Mutation Rules](#5-define-expense-and-installment-mutation-rules)~~
 - [x] ~~[6. Decide Expense And Installment Mutation Scenarios](#6-decide-expense-and-installment-mutation-scenarios)~~
-- [ ] [7. Auth And Authorization Phase 1](#7-auth-and-authorization-phase-1)
+- [x] ~~[7. Auth And Authorization Phase 1](#7-auth-and-authorization-phase-1)~~
 - [ ] [8. Add Observability Foundation](#8-add-observability-foundation)
 - [ ] [9. HTTP Error Response](#9-http-error-response)
 - [ ] [10. Add Expense Delete Endpoint](#10-add-expense-delete-endpoint)

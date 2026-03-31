@@ -1,3 +1,4 @@
+using api.Auth;
 using api.Data;
 using api.Entities;
 using api.Features.Expenses.Shared;
@@ -8,6 +9,7 @@ namespace api.Features.Expenses.CreateExpense;
 
 public class CreateExpenseUseCase(
     FenixContext context,
+    ICurrentUser currentUser,
     IValidator<CreateExpenseRequest> validator)
 {
     public async Task<Result<ExpenseResponse>> ExecuteAsync(CreateExpenseRequest request,
@@ -26,7 +28,7 @@ public class CreateExpenseUseCase(
             request.PaymentType!.Value,
             request.TotalInstallments,
             request.FirstDueDate,
-            AppDataInitializer.DefaultUserId);
+            currentUser.UserId);
 
         context.Expenses.Add(expense);
         await context.SaveChangesAsync(cancellationToken);
