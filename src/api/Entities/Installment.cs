@@ -4,12 +4,33 @@ namespace api.Entities;
 
 public class Installment
 {
-    public Guid Id { get; set; }
-    public int Number { get; set; } // e.g. 1,2,3
-    public Money Amount { get; set; }
-    public DateOnly DueDate { get; set; }
-    public bool Paid { get; set; }
+    private Installment()
+    {
+        Expense = null!;
+    }
 
-    public Guid ExpenseId { get; set; }
-    public Expense Expense { get; set; }
+    private Installment(Guid expenseId, int number, Money amount, DateOnly dueDate)
+    {
+        Id = Guid.NewGuid();
+        ExpenseId = expenseId;
+        Number = number;
+        Amount = amount;
+        DueDate = dueDate;
+        Paid = false;
+        Expense = null!;
+    }
+
+    public Guid Id { get; private set; }
+    public int Number { get; private set; }
+    public Money Amount { get; private set; }
+    public DateOnly DueDate { get; private set; }
+    public bool Paid { get; private set; }
+
+    public Guid ExpenseId { get; private set; }
+    public Expense Expense { get; private set; }
+
+    internal static Installment Create(Guid expenseId, int number, Money amount, DateOnly dueDate)
+    {
+        return new Installment(expenseId, number, amount, dueDate);
+    }
 }

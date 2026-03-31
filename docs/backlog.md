@@ -5,7 +5,7 @@
 - [x] ~~[1. Review Date And Timezone Modeling](#1-review-date-and-timezone-modeling)~~
 - [x] ~~[2. Replace Payment Type Strings With Enums](#2-replace-payment-type-strings-with-enums)~~
 - [x] ~~[3. Extract Validation From Use Cases](#3-extract-validation-from-use-cases)~~
-- [ ] [4. Refactor To Rich Domain Model](#4-refactor-to-rich-domain-model)
+- [x] ~~[4. Refactor To Rich Domain Model](#4-refactor-to-rich-domain-model)~~
 - [ ] [5. Define Expense And Installment Mutation Rules](#5-define-expense-and-installment-mutation-rules)
 - [ ] [6. Decide Expense And Installment Mutation Scenarios](#6-decide-expense-and-installment-mutation-scenarios)
 - [ ] [7. Auth And Authorization Phase 1](#7-auth-and-authorization-phase-1)

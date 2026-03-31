@@ -1,4 +1,4 @@
-﻿using api.Data;
+using api.Data;
 using api.Entities;
 using api.Features.Incomes.Shared;
 using api.Shared;
@@ -16,14 +16,11 @@ public class CreateIncomeUseCase(FenixContext context, IValidator<CreateIncomeRe
             return Result<IncomeResponse>.Failure(errors);
         }
 
-        var income = new Income
-        {
-            Id = Guid.NewGuid(),
-            Description = request.Description.Trim(),
-            Amount = Money.Create(request.Amount),
-            ReceivedDate = request.ReceivedDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
-            UserId = AppDataInitializer.DefaultUserId
-        };
+        var income = Income.Create(
+            request.Description!,
+            Money.Create(request.Amount),
+            request.ReceivedDate!.Value,
+            AppDataInitializer.DefaultUserId);
 
         context.Incomes.Add(income);
         await context.SaveChangesAsync(cancellationToken);
