@@ -22,13 +22,9 @@ public class IncomeController(
     {
         if (request == null)
         {
-            return BadRequest(new
-            {
-                errors = new[]
-                {
-                    AppError.Validation("income.request.invalid", "Invalid data.")
-                }
-            });
+            return BadRequestWithErrors(
+                AppError.Validation("income.request.invalid", "Invalid data.")
+            );
         }
 
         var result = await createIncomeUseCase.ExecuteAsync(request, cancellationToken);
