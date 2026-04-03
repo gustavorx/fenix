@@ -7,13 +7,15 @@ public static class ObservabilityExtensions
 {
     public static IServiceCollection AddFenixObservability(this IServiceCollection services)
     {
+        services.AddSingleton<DatabaseCommandMetricsInterceptor>();
+
         services
             .AddOpenTelemetry()
             .WithMetrics(metrics =>
             {
                 metrics
                     .AddAspNetCoreInstrumentation()
-                    .AddMeter(HttpServerMetrics.MeterName)
+                    .AddMeter(FenixMetrics.MeterName)
                     .AddPrometheusExporter(options =>
                     {
                         options.ScrapeEndpointPath = "/metrics";

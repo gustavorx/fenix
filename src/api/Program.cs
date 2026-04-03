@@ -22,8 +22,10 @@ builder.Logging.Configure(options =>
         ActivityTrackingOptions.ParentId;
 });
 
-builder.Services.AddDbContext<FenixContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString(("DefaultConnection"))));
+builder.Services.AddDbContext<FenixContext>((serviceProvider, options) =>
+    options
+        .UseNpgsql(builder.Configuration.GetConnectionString(("DefaultConnection")))
+        .AddInterceptors(serviceProvider.GetRequiredService<DatabaseCommandMetricsInterceptor>()));
 
 builder.Services.AddScoped<ICurrentUser, DevelopmentCurrentUser>();
 
