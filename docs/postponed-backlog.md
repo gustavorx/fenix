@@ -31,3 +31,13 @@ The API still lacks an endpoint and application flow to delete an installment di
 Decision
 
 Deferred. The current product direction is to avoid individual installment delete for now and keep schedule corrections in the expense delete-and-recreate workflow.
+
+## Review Identifier Strategy
+
+Context
+
+The domain currently uses primitive `Guid` identifiers directly across entities and persistence mappings, without a broader decision on whether IDs should remain `Guid`, move to sequential identifiers, or adopt typed value objects such as `UserId` or `ExpenseId`.
+
+Decision
+
+Deferred. Revisit identifier strategy once the domain surface is more stable and there is enough evidence to evaluate trade-offs across domain clarity, refactor cost, API contracts, EF mappings, and database performance characteristics such as index fragmentation and lookup behavior.
