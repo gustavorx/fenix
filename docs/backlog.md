@@ -6,18 +6,16 @@
 - [x] ~~[2. Replace Payment Type Strings With Enums](#2-replace-payment-type-strings-with-enums)~~
 - [x] ~~[3. Extract Validation From Use Cases](#3-extract-validation-from-use-cases)~~
 - [x] ~~[4. Refactor To Rich Domain Model](#4-refactor-to-rich-domain-model)~~
-- [ ] [5. Define Expense And Installment Mutation Rules](#5-define-expense-and-installment-mutation-rules)
-- [ ] [6. Decide Expense And Installment Mutation Scenarios](#6-decide-expense-and-installment-mutation-scenarios)
+- [x] ~~[5. Define Expense And Installment Mutation Rules](#5-define-expense-and-installment-mutation-rules)~~
+- [x] ~~[6. Decide Expense And Installment Mutation Scenarios](#6-decide-expense-and-installment-mutation-scenarios)~~
 - [ ] [7. Auth And Authorization Phase 1](#7-auth-and-authorization-phase-1)
 - [ ] [8. Add Observability Foundation](#8-add-observability-foundation)
 - [ ] [9. HTTP Error Response](#9-http-error-response)
-- [ ] [10. Add Expense Update Endpoint](#10-add-expense-update-endpoint)
-- [ ] [11. Add Expense Delete Endpoint](#11-add-expense-delete-endpoint)
-- [ ] [12. Add Installment Update Endpoint](#12-add-installment-update-endpoint)
-- [ ] [13. Add Installment Delete Endpoint](#13-add-installment-delete-endpoint)
-- [ ] [14. Add Income Update Endpoint](#14-add-income-update-endpoint)
-- [ ] [15. Add Income Delete Endpoint](#15-add-income-delete-endpoint)
-- [ ] [16. Auth And Authorization Phase 2](#16-auth-and-authorization-phase-2)
+- [ ] [10. Add Expense Delete Endpoint](#10-add-expense-delete-endpoint)
+- [ ] [11. Add Income Update Endpoint](#11-add-income-update-endpoint)
+- [ ] [12. Add Income Delete Endpoint](#12-add-income-delete-endpoint)
+- [ ] [13. Auth And Authorization Phase 2](#13-auth-and-authorization-phase-2)
+- [ ] [14. Add Explicit Installment Create Mode](#14-add-explicit-installment-create-mode)
 
 ## 1. Review Date And Timezone Modeling
 
@@ -85,9 +83,16 @@ Motivation
 
 Without explicit mutation rules, new endpoints may encode inconsistent behavior and force refactors across use cases, persistence, and response contracts.
 
-Next step
+Decision
 
-Define the application rules before implementing new endpoints. At minimum, decide whether updating an expense can regenerate installments, whether an installment can be deleted independently, how paid installments constrain edits, and whether delete means physical removal or a softer business action.
+Adopted rules:
+
+- `Expense` remains the aggregate root and owns installment lifecycle decisions.
+- Expense creation will support both generated installments and explicit installments supplied by the client.
+- For installment expenses, the safest source of truth is the persisted installment list, with `TotalAmount` derived from the sum of installments.
+- Expense update is out of scope for now; if the user needs a different shape, the supported workflow is delete and recreate.
+- Expense delete means physical removal of the whole aggregate, including expenses with paid installments.
+- Individual installment update and delete are out of scope for now.
 
 ## 6. Decide Expense And Installment Mutation Scenarios
 
@@ -99,14 +104,14 @@ Motivation
 
 If these scenarios remain undefined, the implementation may choose behavior implicitly and force later changes in contracts, persistence logic, and tests.
 
-Next step
+Decision
 
-Define the expected behavior for the following scenarios:
+The expected behavior for the open scenarios is now fixed:
 
-- Can updating an expense regenerate its installments?
-- If an installment is deleted, should the parent expense adjust `TotalAmount` and `InstallmentsQuantity`?
-- Can an installment be deleted individually, or should it only be canceled, skipped, or marked in another way?
-- Can paid installments be recalculated or replaced?
+- Updating an expense does not regenerate installments because expense update is not supported for now.
+- The parent expense does not adjust `TotalAmount` or `InstallmentsQuantity` after individual installment delete because individual installment delete is not allowed.
+- An installment cannot be deleted individually in this phase.
+- Paid installments are not recalculated or replaced; corrections happen by deleting and recreating the full expense.
 
 ## 7. Auth And Authorization Phase 1
 
@@ -168,21 +173,7 @@ Next step
 
 Create a dedicated HTTP error response model, for example `ApiErrorResponse`, and centralize error payload construction in the controller base or a mapper.
 
-## 10. Add Expense Update Endpoint
-
-Context
-
-The API already supports creating and reading expenses, but it still lacks an endpoint and application flow to update an existing expense.
-
-Motivation
-
-Expense updates are part of the core product workflow, but they depend on the mutation rules, payment type model, date model, and user scoping being clear enough first.
-
-Next step
-
-Implement the request model, validator, use case, and controller endpoint for updating expenses after the mutation rules and application-level prerequisites are settled.
-
-## 11. Add Expense Delete Endpoint
+## 10. Add Expense Delete Endpoint
 
 Context
 
@@ -194,37 +185,9 @@ Deleting an expense is core functionality, but its behavior must remain aligned 
 
 Next step
 
-Implement the use case and controller endpoint for deleting expenses after the expense and installment mutation rules are defined.
+Implement the use case and controller endpoint for deleting expenses with physical removal of the full aggregate, even when some installments were already marked as paid.
 
-## 12. Add Installment Update Endpoint
-
-Context
-
-Installments are already exposed in responses, but the API still lacks an endpoint and application flow to update an installment directly.
-
-Motivation
-
-This feature is likely to be useful in the product, especially for due date and payment-state management, but it depends on clear ownership and recalculation rules.
-
-Next step
-
-Implement the request model, validator, use case, and controller endpoint for updating installments after the mutation scenarios are defined.
-
-## 13. Add Installment Delete Endpoint
-
-Context
-
-The API still lacks an endpoint and application flow to delete an installment directly.
-
-Motivation
-
-This operation is especially sensitive because installments belong to an expense aggregate, so delete semantics need to be explicit before coding.
-
-Next step
-
-Implement the use case and controller endpoint for deleting installments only after defining whether individual deletion is allowed and how the parent expense should react.
-
-## 14. Add Income Update Endpoint
+## 11. Add Income Update Endpoint
 
 Context
 
@@ -238,7 +201,7 @@ Next step
 
 Implement the request model, validator, use case, and controller endpoint for updating incomes after the shared application-layer foundations are in place.
 
-## 15. Add Income Delete Endpoint
+## 12. Add Income Delete Endpoint
 
 Context
 
@@ -252,7 +215,7 @@ Next step
 
 Implement the use case and controller endpoint for deleting incomes after the shared application-layer foundations are in place.
 
-## 16. Auth And Authorization Phase 2
+## 13. Auth And Authorization Phase 2
 
 Context
 
@@ -265,3 +228,20 @@ Identity flows such as user creation, email validation, token issuance, and sess
 Next step
 
 Replace the fixed current-user implementation with real authentication and authorization flows, such as JWT in cookies or another session mechanism, once the core API surface is stable.
+
+## 14. Add Explicit Installment Create Mode
+
+Context
+
+The API already generates installments automatically, but some card statements distribute cents across installments in a way that may not match the server split logic.
+
+Motivation
+
+If the user cannot provide the exact installment values seen in the card statement, balances may diverge by cents and the application stops being a faithful mirror of the user's financial reality.
+
+Next step
+
+Extend expense creation so the client can choose between:
+
+- generated schedule mode, where the server derives installments from aggregate inputs;
+- explicit schedule mode, where the client sends `installments[]` with exact amounts and due dates and the server derives `TotalAmount` from that list.
