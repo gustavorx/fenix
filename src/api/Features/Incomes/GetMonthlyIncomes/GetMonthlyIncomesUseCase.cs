@@ -1,3 +1,4 @@
+using api.Auth;
 using api.Data;
 using api.Features.Incomes.Shared;
 using api.Shared;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.Incomes.GetMonthlyIncomes;
 
-public class GetMonthlyIncomesUseCase(FenixContext context)
+public class GetMonthlyIncomesUseCase(FenixContext context, ICurrentUser currentUser)
 {
     public async Task<Result<MonthlyIncomesResponse>> ExecuteAsync(int month, int year, CancellationToken cancellationToken)
     {
@@ -24,7 +25,10 @@ public class GetMonthlyIncomesUseCase(FenixContext context)
 
         var incomes = await context.Incomes
             .AsNoTracking()
-            .Where(income => income.ReceivedDate.Month == month && income.ReceivedDate.Year == year)
+            .Where(income =>
+                income.UserId == currentUser.UserId &&
+                income.ReceivedDate.Month == month &&
+                income.ReceivedDate.Year == year)
             .OrderByDescending(income => income.ReceivedDate)
             .ToListAsync(cancellationToken);
 

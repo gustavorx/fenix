@@ -1,3 +1,4 @@
+using api.Auth;
 using api.Data;
 using api.Features.Expenses.CreateExpense;
 using api.Features.Expenses.GetAllExpenses;
@@ -14,6 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<FenixContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString(("DefaultConnection"))));
+
+builder.Services.AddScoped<ICurrentUser, DevelopmentCurrentUser>();
 
 builder.Services.AddScoped<CreateExpenseUseCase>();
 builder.Services.AddScoped<IValidator<CreateExpenseRequest>, CreateExpenseRequestValidator>();
