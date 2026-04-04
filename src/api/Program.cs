@@ -40,6 +40,7 @@ builder.Services.AddScoped<GetIncomeByIdUseCase>();
 builder.Services.AddScoped<GetMonthlyIncomesUseCase>();
 
 builder.Services.AddControllers();
+builder.Services.AddFenixObservability();
 
 var app = builder.Build();
 
@@ -49,6 +50,7 @@ await using (var scope = app.Services.CreateAsyncScope())
     await AppDataInitializer.InitializeAsync(context);
 }
 
+app.UseFenixMetricsEndpoint();
 app.UseMiddleware<RequestObservabilityMiddleware>();
 
 app.MapControllers();

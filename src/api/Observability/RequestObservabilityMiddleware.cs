@@ -37,6 +37,10 @@ public sealed class RequestObservabilityMiddleware(
         catch (Exception exception)
         {
             stopwatch.Stop();
+            HttpServerMetrics.RecordError(
+                context,
+                StatusCodes.Status500InternalServerError,
+                "Unexpected");
 
             logger.LogError(
                 HttpRequestFailed,
@@ -59,6 +63,14 @@ public sealed class RequestObservabilityMiddleware(
         var errorCodeList = errorCodes is { Count: > 0 }
             ? string.Join(",", errorCodes)
             : null;
+
+        if (statusCode >= StatusCodes.Status400BadRequest)
+        {
+            HttpServerMetrics.RecordError(
+                context,
+                statusCode,
+                ResolveErrorType(statusCode, errorType));
+        }
 
         if (string.IsNullOrWhiteSpace(errorType))
         {
@@ -112,6 +124,18 @@ public sealed class RequestObservabilityMiddleware(
         }
 
         return LogLevel.Information;
+    }
+
+    private static string ResolveErrorType(int statusCode, string? errorType)
+    {
+        if (!string.IsNullOrWhiteSpace(errorType))
+        {
+            return errorType;
+        }
+
+        return statusCode >= StatusCodes.Status500InternalServerError
+            ? "Unexpected"
+            : "HttpError";
     }
 
     private static T? GetContextItem<T>(HttpContext context, string key)
