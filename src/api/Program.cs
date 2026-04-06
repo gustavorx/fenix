@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using api.Auth;
 using api.Data;
 using api.Features.Expenses.CreateExpense;
@@ -11,6 +12,9 @@ using api.Features.Incomes.GetMonthlyIncomes;
 using api.Observability;
 using api.Shared;
 using Microsoft.EntityFrameworkCore;
+
+Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+Activity.ForceDefaultIdFormat = true;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -15,8 +15,11 @@ public sealed class RequestObservabilityMiddleware(
     public async Task InvokeAsync(HttpContext context)
     {
         var correlationId = ResolveCorrelationId(context);
-        var traceId = Activity.Current?.TraceId.ToString() ?? context.TraceIdentifier;
+        var requestActivity = Activity.Current;
+        var traceId = requestActivity?.TraceId.ToString() ?? context.TraceIdentifier;
         var stopwatch = Stopwatch.StartNew();
+
+        requestActivity?.SetTag("fenix.correlation_id", correlationId);
 
         context.Response.OnStarting(() =>
         {

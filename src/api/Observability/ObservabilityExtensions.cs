@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Http.Features;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace api.Observability;
 
@@ -11,6 +13,7 @@ public static class ObservabilityExtensions
 
         services
             .AddOpenTelemetry()
+            .ConfigureResource(resource => resource.AddService(FenixMetrics.MeterName))
             .WithMetrics(metrics =>
             {
                 metrics
@@ -21,6 +24,16 @@ public static class ObservabilityExtensions
                         options.ScrapeEndpointPath = "/metrics";
                         options.ScrapeResponseCacheDurationMilliseconds = 0;
                     });
+            })
+            .WithTracing(tracing =>
+            {
+                tracing
+                    .AddAspNetCoreInstrumentation(options =>
+                    {
+                        options.Filter = context => context.Request.Path != "/metrics";
+                        options.RecordException = true;
+                    })
+                    .AddSource(FenixTracing.ActivitySourceName);
             });
 
         return services;
