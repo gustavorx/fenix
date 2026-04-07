@@ -153,11 +153,12 @@ Track, at minimum:
 
 Suggested phases:
 
-- Phase 1: Add structured logging, correlation identifiers, and basic request logging for the HTTP layer.
-- Phase 2: Add metrics for HTTP requests, status codes, error rates, and database command duration.
-- Phase 3: Add tracing for HTTP requests and database operations, preferably with OpenTelemetry-compatible instrumentation.
-- Phase 4: Add local dashboards and telemetry collection infrastructure, such as an OpenTelemetry Collector plus a metrics and tracing backend.
-- Phase 5: Define a repeatable load-test baseline and use observability data to measure throughput, latency, error rate, and saturation under load.
+- Phase 1: Add structured HTTP request logging, correlation identifiers, trace identifiers, request duration, status code logging, known application error metadata, and unexpected exception logging. Database metrics and dashboards are explicitly out of scope for this phase.
+- Phase 2: Add HTTP metrics for request count, request duration, status code distribution, and error rates, preferably with OpenTelemetry-compatible instrumentation.
+- Phase 3: Add database instrumentation for command count, command duration, and command failures, preferably through OpenTelemetry instrumentation or an EF Core command interceptor rather than use-case-level timers.
+- Phase 4: Add tracing for HTTP requests and database operations, preferably with OpenTelemetry-compatible instrumentation and W3C trace context propagation.
+- Phase 5: Add local dashboards and telemetry collection infrastructure, such as an OpenTelemetry Collector plus a metrics and tracing backend.
+- Phase 6: Define a repeatable load-test baseline and use observability data to measure throughput, latency, error rate, and saturation under load.
 
 ## 9. HTTP Error Response
 
