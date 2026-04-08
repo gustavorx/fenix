@@ -5,11 +5,7 @@ namespace api.Observability;
 
 public static class HttpServerMetrics
 {
-    public const string MeterName = "Fenix.Api";
-
-    private static readonly Meter Meter = new(MeterName);
-
-    private static readonly Counter<long> HttpServerErrors = Meter.CreateCounter<long>(
+    private static readonly Counter<long> HttpServerErrors = FenixMetrics.Meter.CreateCounter<long>(
         "fenix.http.server.errors",
         "{error}",
         "HTTP error responses.");
