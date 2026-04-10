@@ -46,7 +46,7 @@ builder.Services.AddScoped<GetIncomeByIdUseCase>();
 builder.Services.AddScoped<GetMonthlyIncomesUseCase>();
 
 builder.Services.AddControllers();
-builder.Services.AddFenixObservability();
+builder.Services.AddFenixObservability(builder.Configuration);
 
 var app = builder.Build();
 
