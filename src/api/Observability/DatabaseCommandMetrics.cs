@@ -7,18 +7,22 @@ namespace api.Observability;
 
 public static class DatabaseCommandMetrics
 {
+    public const string CommandsMetricName = "fenix.db.commands";
+    public const string CommandDurationMetricName = "fenix.db.command.duration";
+    public const string CommandFailuresMetricName = "fenix.db.command.failures";
+
     private static readonly Counter<long> DatabaseCommands = FenixMetrics.Meter.CreateCounter<long>(
-        "fenix.db.commands",
+        CommandsMetricName,
         "{command}",
         "Database commands observed.");
 
     private static readonly Histogram<double> DatabaseCommandDuration = FenixMetrics.Meter.CreateHistogram<double>(
-        "fenix.db.command.duration",
+        CommandDurationMetricName,
         "s",
         "Database command duration.");
 
     private static readonly Counter<long> DatabaseCommandFailures = FenixMetrics.Meter.CreateCounter<long>(
-        "fenix.db.command.failures",
+        CommandFailuresMetricName,
         "{error}",
         "Database command failures.");
 
