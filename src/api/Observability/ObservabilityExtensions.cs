@@ -8,6 +8,42 @@ namespace api.Observability;
 
 public static class ObservabilityExtensions
 {
+    private const string HttpServerRequestDurationMetricName = "http.server.request.duration";
+
+    private static readonly double[] HttpServerRequestDurationBuckets =
+    [
+        0.005,
+        0.01,
+        0.025,
+        0.05,
+        0.075,
+        0.1,
+        0.25,
+        0.5,
+        0.75,
+        1,
+        2.5,
+        5,
+        7.5,
+        10,
+    ];
+
+    private static readonly double[] DatabaseCommandDurationBuckets =
+    [
+        0.001,
+        0.002,
+        0.005,
+        0.01,
+        0.025,
+        0.05,
+        0.1,
+        0.25,
+        0.5,
+        1,
+        2.5,
+        5,
+    ];
+
     public static IServiceCollection AddFenixObservability(this IServiceCollection services, IConfiguration configuration)
     {
         var otlpEndpoint = ResolveOtlpEndpoint(configuration);
@@ -23,6 +59,18 @@ public static class ObservabilityExtensions
                 metrics
                     .AddAspNetCoreInstrumentation()
                     .AddMeter(FenixMetrics.MeterName)
+                    .AddView(
+                        HttpServerRequestDurationMetricName,
+                        new ExplicitBucketHistogramConfiguration
+                        {
+                            Boundaries = HttpServerRequestDurationBuckets,
+                        })
+                    .AddView(
+                        DatabaseCommandMetrics.CommandDurationMetricName,
+                        new ExplicitBucketHistogramConfiguration
+                        {
+                            Boundaries = DatabaseCommandDurationBuckets,
+                        })
                     .AddPrometheusExporter(options =>
                     {
                         options.ScrapeEndpointPath = "/metrics";
