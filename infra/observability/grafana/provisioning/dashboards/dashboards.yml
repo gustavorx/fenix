@@ -1,0 +1,12 @@
+apiVersion: 1
+
+providers:
+  - name: Fenix
+    orgId: 1
+    folder: Fenix
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 10
+    options:
+      path: /etc/grafana/provisioning/dashboards/json

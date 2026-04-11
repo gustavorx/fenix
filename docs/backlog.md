@@ -157,7 +157,7 @@ Suggested phases:
 - Phase 2: Add HTTP metrics for request count, request duration, status code distribution, and error rates, preferably with OpenTelemetry-compatible instrumentation.
 - Phase 3: Add database instrumentation for command count, command duration, and command failures, preferably through OpenTelemetry instrumentation or an EF Core command interceptor rather than use-case-level timers.
 - Phase 4: Add tracing for HTTP requests and database operations, preferably with OpenTelemetry-compatible instrumentation and W3C trace context propagation.
-- Phase 5: Add local dashboards and telemetry collection infrastructure, such as an OpenTelemetry Collector plus a metrics and tracing backend.
+- Phase 5: Add local dashboards and telemetry collection infrastructure with OpenTelemetry Collector, Prometheus, Tempo, and Grafana. Keep metrics on Prometheus scrape from `/metrics` and export traces via OTLP to the collector.
 - Phase 6: Define a repeatable load-test baseline and use observability data to measure throughput, latency, error rate, and saturation under load.
 
 ## 9. HTTP Error Response
