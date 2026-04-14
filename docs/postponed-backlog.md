@@ -41,3 +41,13 @@ The domain currently uses primitive `Guid` identifiers directly across entities 
 Decision
 
 Deferred. Revisit identifier strategy once the domain surface is more stable and there is enough evidence to evaluate trade-offs across domain clarity, refactor cost, API contracts, EF mappings, and database performance characteristics such as index fragmentation and lookup behavior.
+
+## HTTP Error Response
+
+Context
+
+The HTTP layer still builds some error payloads inline in controllers, but the API does not yet have its final HTTP error contract or the planned global exception middleware.
+
+Decision
+
+Deferred. Revisit HTTP error response modeling after introducing global exception handling and more endpoints, so the project can define a single error contract with better evidence about validation, not found, conflict, and unexpected failure scenarios.

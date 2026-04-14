@@ -1,4 +1,5 @@
 using api.Features.Expenses.CreateExpense;
+using api.Features.Expenses.DeleteExpense;
 using api.Features.Expenses.GetAllExpenses;
 using api.Features.Expenses.GetExpenseById;
 using api.Features.Expenses.GetMonthlyExpenses;
@@ -11,6 +12,7 @@ namespace api.Controllers;
 [Route("api/expenses")]
 public class ExpenseController(
     CreateExpenseUseCase createExpenseUseCase,
+    DeleteExpenseUseCase deleteExpenseUseCase,
     GetMonthlyExpensesUseCase getMonthlyExpensesUseCase,
     GetAllExpensesUseCase getAllExpensesUseCase,
     GetExpenseByIdUseCase getExpenseByIdUseCase) : ApiControllerBase
@@ -59,5 +61,13 @@ public class ExpenseController(
         var result = await getExpenseByIdUseCase.ExecuteAsync(id, cancellationToken);
         
         return ToActionResult(result, Ok);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteExpense(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await deleteExpenseUseCase.ExecuteAsync(id, cancellationToken);
+
+        return ToActionResult(result, NoContent);
     }
 }
