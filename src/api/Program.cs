@@ -7,6 +7,7 @@ using api.Features.Expenses.GetAllExpenses;
 using api.Features.Expenses.GetExpenseById;
 using api.Features.Expenses.GetMonthlyExpenses;
 using api.Features.Incomes.CreateIncome;
+using api.Features.Incomes.DeleteIncome;
 using api.Features.Incomes.GetAllIncomes;
 using api.Features.Incomes.GetIncomeById;
 using api.Features.Incomes.GetMonthlyIncomes;
@@ -42,6 +43,7 @@ builder.Services.AddScoped<GetExpenseByIdUseCase>();
 builder.Services.AddScoped<GetMonthlyExpensesUseCase>();
 
 builder.Services.AddScoped<CreateIncomeUseCase>();
+builder.Services.AddScoped<DeleteIncomeUseCase>();
 builder.Services.AddScoped<IValidator<CreateIncomeRequest>, CreateIncomeRequestValidator>();
 builder.Services.AddScoped<GetAllIncomesUseCase>();
 builder.Services.AddScoped<GetIncomeByIdUseCase>();

@@ -1,4 +1,5 @@
 using api.Features.Incomes.CreateIncome;
+using api.Features.Incomes.DeleteIncome;
 using api.Features.Incomes.GetAllIncomes;
 using api.Features.Incomes.GetIncomeById;
 using api.Features.Incomes.GetMonthlyIncomes;
@@ -11,6 +12,7 @@ namespace api.Controllers;
 [Route("api/incomes")]
 public class IncomeController(
     CreateIncomeUseCase createIncomeUseCase,
+    DeleteIncomeUseCase deleteIncomeUseCase,
     GetIncomeByIdUseCase getIncomeByIdUseCase,
     GetAllIncomesUseCase getAllIncomesUseCase,
     GetMonthlyIncomesUseCase getMonthlyIncomesUseCase) : ApiControllerBase
@@ -59,5 +61,13 @@ public class IncomeController(
         var result = await getIncomeByIdUseCase.ExecuteAsync(id, cancellationToken);
         
         return ToActionResult(result, Ok);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteIncome(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await deleteIncomeUseCase.ExecuteAsync(id, cancellationToken);
+
+        return ToActionResult(result, NoContent);
     }
 }

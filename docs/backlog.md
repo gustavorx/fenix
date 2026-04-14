@@ -10,9 +10,9 @@
 - [x] ~~[6. Decide Expense And Installment Mutation Scenarios](#6-decide-expense-and-installment-mutation-scenarios)~~
 - [x] ~~[7. Auth And Authorization Phase 1](#7-auth-and-authorization-phase-1)~~
 - [X] [8. Add Observability Foundation](#8-add-observability-foundation)
-- [ ] [9. Add Expense Delete Endpoint](#9-add-expense-delete-endpoint)
+- [X] [9. Add Expense Delete Endpoint](#9-add-expense-delete-endpoint)
 - [ ] [10. Add Income Update Endpoint](#10-add-income-update-endpoint)
-- [ ] [11. Add Income Delete Endpoint](#11-add-income-delete-endpoint)
+- [X] [11. Add Income Delete Endpoint](#11-add-income-delete-endpoint)
 - [ ] [12. Auth And Authorization Phase 2](#12-auth-and-authorization-phase-2)
 - [ ] [13. Add Explicit Installment Create Mode](#13-add-explicit-installment-create-mode)
 
