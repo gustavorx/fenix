@@ -10,12 +10,11 @@
 - [x] ~~[6. Decide Expense And Installment Mutation Scenarios](#6-decide-expense-and-installment-mutation-scenarios)~~
 - [x] ~~[7. Auth And Authorization Phase 1](#7-auth-and-authorization-phase-1)~~
 - [X] [8. Add Observability Foundation](#8-add-observability-foundation)
-- [ ] [9. HTTP Error Response](#9-http-error-response)
-- [ ] [10. Add Expense Delete Endpoint](#10-add-expense-delete-endpoint)
-- [ ] [11. Add Income Update Endpoint](#11-add-income-update-endpoint)
-- [ ] [12. Add Income Delete Endpoint](#12-add-income-delete-endpoint)
-- [ ] [13. Auth And Authorization Phase 2](#13-auth-and-authorization-phase-2)
-- [ ] [14. Add Explicit Installment Create Mode](#14-add-explicit-installment-create-mode)
+- [ ] [9. Add Expense Delete Endpoint](#9-add-expense-delete-endpoint)
+- [ ] [10. Add Income Update Endpoint](#10-add-income-update-endpoint)
+- [ ] [11. Add Income Delete Endpoint](#11-add-income-delete-endpoint)
+- [ ] [12. Auth And Authorization Phase 2](#12-auth-and-authorization-phase-2)
+- [ ] [13. Add Explicit Installment Create Mode](#13-add-explicit-installment-create-mode)
 
 ## 1. Review Date And Timezone Modeling
 
@@ -160,21 +159,7 @@ Suggested phases:
 - Phase 5: Add local dashboards and telemetry collection infrastructure with OpenTelemetry Collector, Prometheus, Tempo, and Grafana. Keep metrics on Prometheus scrape from `/metrics` and export traces via OTLP to the collector.
 - Phase 6: Define a repeatable load-test baseline and use observability data to measure throughput, latency, error rate, and saturation under load.
 
-## 9. HTTP Error Response
-
-Context
-
-The HTTP layer still builds error payloads inline in controllers for some cases such as `request == null`.
-
-Motivation
-
-This works for now, but it leaks response-shaping concerns into controllers and makes the HTTP boundary less consistent than it could be.
-
-Next step
-
-Create a dedicated HTTP error response model, for example `ApiErrorResponse`, and centralize error payload construction in the controller base or a mapper.
-
-## 10. Add Expense Delete Endpoint
+## 9. Add Expense Delete Endpoint
 
 Context
 
@@ -188,7 +173,7 @@ Next step
 
 Implement the use case and controller endpoint for deleting expenses with physical removal of the full aggregate, even when some installments were already marked as paid.
 
-## 11. Add Income Update Endpoint
+## 10. Add Income Update Endpoint
 
 Context
 
@@ -202,7 +187,7 @@ Next step
 
 Implement the request model, validator, use case, and controller endpoint for updating incomes after the shared application-layer foundations are in place.
 
-## 12. Add Income Delete Endpoint
+## 11. Add Income Delete Endpoint
 
 Context
 
@@ -216,7 +201,7 @@ Next step
 
 Implement the use case and controller endpoint for deleting incomes after the shared application-layer foundations are in place.
 
-## 13. Auth And Authorization Phase 2
+## 12. Auth And Authorization Phase 2
 
 Context
 
@@ -230,7 +215,7 @@ Next step
 
 Replace the fixed current-user implementation with real authentication and authorization flows, such as JWT in cookies or another session mechanism, once the core API surface is stable.
 
-## 14. Add Explicit Installment Create Mode
+## 13. Add Explicit Installment Create Mode
 
 Context
 
