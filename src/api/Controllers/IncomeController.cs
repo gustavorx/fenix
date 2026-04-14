@@ -3,6 +3,7 @@ using api.Features.Incomes.DeleteIncome;
 using api.Features.Incomes.GetAllIncomes;
 using api.Features.Incomes.GetIncomeById;
 using api.Features.Incomes.GetMonthlyIncomes;
+using api.Features.Incomes.UpdateIncome;
 using api.Shared;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +16,8 @@ public class IncomeController(
     DeleteIncomeUseCase deleteIncomeUseCase,
     GetIncomeByIdUseCase getIncomeByIdUseCase,
     GetAllIncomesUseCase getAllIncomesUseCase,
-    GetMonthlyIncomesUseCase getMonthlyIncomesUseCase) : ApiControllerBase
+    GetMonthlyIncomesUseCase getMonthlyIncomesUseCase,
+    UpdateIncomeUseCase updateIncomeUseCase) : ApiControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateIncome(
@@ -60,6 +62,24 @@ public class IncomeController(
     {
         var result = await getIncomeByIdUseCase.ExecuteAsync(id, cancellationToken);
         
+        return ToActionResult(result, Ok);
+    }
+
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> UpdateIncome(
+        Guid id,
+        [FromBody] UpdateIncomeRequest? request,
+        CancellationToken cancellationToken)
+    {
+        if (request == null)
+        {
+            return BadRequestWithErrors(
+                AppError.Validation("income.request.invalid", "Invalid data.")
+            );
+        }
+
+        var result = await updateIncomeUseCase.ExecuteAsync(id, request, cancellationToken);
+
         return ToActionResult(result, Ok);
     }
 

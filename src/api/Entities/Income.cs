@@ -30,17 +30,34 @@ public class Income
 
     public static Income Create(string description, Money amount, DateOnly receivedDate, Guid userId)
     {
+        return new Income(NormalizeDescription(description), EnsurePositiveAmount(amount), receivedDate, userId);
+    }
+
+    public void Update(string description, Money amount, DateOnly receivedDate)
+    {
+        Description = NormalizeDescription(description);
+        Amount = EnsurePositiveAmount(amount);
+        ReceivedDate = receivedDate;
+    }
+
+    private static string NormalizeDescription(string description)
+    {
         var normalizedDescription = description.Trim();
         if (string.IsNullOrWhiteSpace(normalizedDescription))
         {
             throw new ArgumentException("Description is required.", nameof(description));
         }
 
+        return normalizedDescription!;
+    }
+
+    private static Money EnsurePositiveAmount(Money amount)
+    {
         if (amount.Value <= 0)
         {
             throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be greater than zero.");
         }
 
-        return new Income(normalizedDescription!, amount, receivedDate, userId);
+        return amount;
     }
 }
