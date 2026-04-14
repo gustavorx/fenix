@@ -6,6 +6,16 @@ namespace api.Controllers;
 
 public abstract class ApiControllerBase : ControllerBase
 {
+    protected IActionResult ToActionResult(Result result, Func<IActionResult> onSuccess)
+    {
+        if (result.IsSuccess)
+        {
+            return onSuccess();
+        }
+
+        return HandleError(result);
+    }
+
     protected IActionResult ToActionResult<T>(Result<T> result, Func<T, IActionResult> onSuccess)
     {
         if (result.IsSuccess)
@@ -13,6 +23,11 @@ public abstract class ApiControllerBase : ControllerBase
             return onSuccess(result.Value!);
         }
 
+        return HandleError(result);
+    }
+
+    protected IActionResult HandleError(ResultBase result)
+    {
         TrackErrors(result.Errors);
 
         return result.ErrorType switch
