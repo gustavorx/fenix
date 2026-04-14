@@ -2,6 +2,7 @@ using System.Diagnostics;
 using api.Auth;
 using api.Data;
 using api.Features.Expenses.CreateExpense;
+using api.Features.Expenses.DeleteExpense;
 using api.Features.Expenses.GetAllExpenses;
 using api.Features.Expenses.GetExpenseById;
 using api.Features.Expenses.GetMonthlyExpenses;
@@ -34,6 +35,7 @@ builder.Services.AddDbContext<FenixContext>((serviceProvider, options) =>
 builder.Services.AddScoped<ICurrentUser, DevelopmentCurrentUser>();
 
 builder.Services.AddScoped<CreateExpenseUseCase>();
+builder.Services.AddScoped<DeleteExpenseUseCase>();
 builder.Services.AddScoped<IValidator<CreateExpenseRequest>, CreateExpenseRequestValidator>();
 builder.Services.AddScoped<GetAllExpensesUseCase>();
 builder.Services.AddScoped<GetExpenseByIdUseCase>();
