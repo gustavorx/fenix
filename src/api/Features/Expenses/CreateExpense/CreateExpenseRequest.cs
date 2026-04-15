@@ -10,4 +10,5 @@ public class CreateExpenseRequest
     public ExpensePaymentType? PaymentType { get; set; }
     public int? TotalInstallments { get; set; }
     public DateOnly? FirstDueDate { get; set; }
+    public Guid? CardId { get; set; }
 }

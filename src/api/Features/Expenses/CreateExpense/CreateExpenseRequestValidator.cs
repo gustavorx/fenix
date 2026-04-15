@@ -30,6 +30,11 @@ public sealed class CreateExpenseRequestValidator : IValidator<CreateExpenseRequ
             errors.Add(AppError.Validation("expense.purchase_date.required", "PurchaseDate is required."));
         }
 
+        if (request.CardId == Guid.Empty)
+        {
+            errors.Add(AppError.Validation("expense.card_id.invalid", "CardId must be a valid identifier."));
+        }
+
         var paymentType = request.PaymentType;
         var hasValidPaymentType = paymentType != null && Enum.IsDefined(paymentType.Value);
         if (!hasValidPaymentType)

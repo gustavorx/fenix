@@ -225,7 +225,7 @@ Adopt these rules for this phase:
 
 Suggested phases
 
-- Phase 1: Define card contract and implement card CRUD endpoints with user scoping, validation, and ownership checks.
+- Phase 1: Define card contract and implement card CRUD endpoints with user scoping, validation, and ownership checks. Done.
 - Phase 2: Extend expense create request with optional `cardId` and validate that the referenced card belongs to the current user.
 - Phase 3: Expose optional card summary in expense responses and monthly installment responses.
 - Phase 4: Revisit whether card-specific monthly aggregations deserve a separate endpoint such as a future statement-oriented query, but keep that out of the current expense-month contract.
