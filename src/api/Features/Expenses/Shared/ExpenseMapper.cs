@@ -19,6 +19,7 @@ public static class ExpenseMapper
             PurchaseDate = expense.PurchaseDate,
             PaymentType = expense.PaymentType,
             TotalInstallments = expense.InstallmentsQuantity,
+            CardId = expense.CardId,
             Installments = orderedInstallments.Select(ToInstallmentResponse).ToList()
         };
     }
@@ -41,6 +42,7 @@ public static class ExpenseMapper
         {
             InstallmentId = installment.Id,
             ExpenseId = installment.ExpenseId,
+            CardId = installment.Expense.CardId,
             Description = installment.Expense.Description,
             PaymentType = installment.Expense.PaymentType,
             TotalAmount = installment.Expense.TotalAmount.Value,

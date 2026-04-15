@@ -218,16 +218,16 @@ Adopt these rules for this phase:
 
 - Card association on expense is optional. An expense may exist without any linked card.
 - The source of truth for card association is the expense itself through `CardId`.
-- Monthly expense response should remain installment-centric, with a single `installments[]` list. Installments whose parent expense has a linked card should include an optional `card` object in each item, instead of returning a separate top-level card grouping.
-- Expense read responses should also expose the same optional `card` object so the contract stays consistent between `GET /expenses`, `GET /expenses/{id}`, and `GET /expenses/monthly`.
-- Card payload should be summary-oriented in expense responses, for example `id`, `name`, and any other lightweight display fields. Full card management details stay in card endpoints.
+- Monthly expense response should remain installment-centric, with a single `installments[]` list. Installments whose parent expense has a linked card should include an optional `cardId`, instead of returning a separate top-level card grouping.
+- Expense read responses should also expose the same optional `cardId` so the contract stays consistent between `GET /expenses`, `GET /expenses/{id}`, and `GET /expenses/monthly`.
+- Expense responses should expose only the linked `cardId`. Card details continue to be resolved through card endpoints when needed.
 - Expense update remains out of scope for now. Changing card association on an existing expense continues to follow the current delete-and-recreate workflow unless a dedicated mutation is added later.
 
 Suggested phases
 
 - Phase 1: Define card contract and implement card CRUD endpoints with user scoping, validation, and ownership checks. Done.
 - Phase 2: Extend expense create request with optional `cardId` and validate that the referenced card belongs to the current user.
-- Phase 3: Expose optional card summary in expense responses and monthly installment responses.
+- Phase 3: Expose optional `cardId` in expense responses and monthly installment responses.
 - Phase 4: Revisit whether card-specific monthly aggregations deserve a separate endpoint such as a future statement-oriented query, but keep that out of the current expense-month contract.
 
 ## 13. Add Explicit Installment Create Mode

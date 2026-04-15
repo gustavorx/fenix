@@ -14,6 +14,7 @@ public class MonthlyExpenseInstallmentResponse
 {
     public Guid InstallmentId { get; init; }
     public Guid ExpenseId { get; init; }
+    public Guid? CardId { get; init; }
     public string Description { get; init; } = string.Empty;
     public ExpensePaymentType PaymentType { get; init; }
     public decimal TotalAmount { get; init; }
