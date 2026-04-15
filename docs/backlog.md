@@ -13,7 +13,7 @@
 - [X] [9. Add Expense Delete Endpoint](#9-add-expense-delete-endpoint)
 - [X] [10. Add Income Update Endpoint](#10-add-income-update-endpoint)
 - [X] [11. Add Income Delete Endpoint](#11-add-income-delete-endpoint)
-- [ ] [12. Add Cards And Optional Expense Card Association](#12-add-cards-and-optional-expense-card-association)
+- [X] [12. Add Cards And Optional Expense Card Association](#12-add-cards-and-optional-expense-card-association)
 - [ ] [13. Add Explicit Installment Create Mode](#13-add-explicit-installment-create-mode)
 - [ ] [14. Auth And Authorization Phase 2](#14-auth-and-authorization-phase-2)
 
@@ -221,14 +221,15 @@ Adopt these rules for this phase:
 - Monthly expense response should remain installment-centric, with a single `installments[]` list. Installments whose parent expense has a linked card should include an optional `cardId`, instead of returning a separate top-level card grouping.
 - Expense read responses should also expose the same optional `cardId` so the contract stays consistent between `GET /expenses`, `GET /expenses/{id}`, and `GET /expenses/monthly`.
 - Expense responses should expose only the linked `cardId`. Card details continue to be resolved through card endpoints when needed.
+- No separate card-specific or statement-oriented monthly endpoint will be added in this item. The current monthly expense contract remains the official monthly read model for now.
 - Expense update remains out of scope for now. Changing card association on an existing expense continues to follow the current delete-and-recreate workflow unless a dedicated mutation is added later.
 
 Suggested phases
 
 - Phase 1: Define card contract and implement card CRUD endpoints with user scoping, validation, and ownership checks. Done.
-- Phase 2: Extend expense create request with optional `cardId` and validate that the referenced card belongs to the current user.
-- Phase 3: Expose optional `cardId` in expense responses and monthly installment responses.
-- Phase 4: Revisit whether card-specific monthly aggregations deserve a separate endpoint such as a future statement-oriented query, but keep that out of the current expense-month contract.
+- Phase 2: Extend expense create request with optional `cardId` and validate that the referenced card belongs to the current user. Done.
+- Phase 3: Expose optional `cardId` in expense responses and monthly installment responses. Done.
+- Phase 4: Keep card-specific monthly aggregations and statement-oriented queries out of the current contract. `GET /expenses/monthly` plus `cardId` remains the supported monthly view for now. Done.
 
 ## 13. Add Explicit Installment Create Mode
 
