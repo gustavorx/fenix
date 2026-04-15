@@ -11,10 +11,11 @@
 - [x] ~~[7. Auth And Authorization Phase 1](#7-auth-and-authorization-phase-1)~~
 - [X] [8. Add Observability Foundation](#8-add-observability-foundation)
 - [X] [9. Add Expense Delete Endpoint](#9-add-expense-delete-endpoint)
-- [ ] [10. Add Income Update Endpoint](#10-add-income-update-endpoint)
+- [X] [10. Add Income Update Endpoint](#10-add-income-update-endpoint)
 - [X] [11. Add Income Delete Endpoint](#11-add-income-delete-endpoint)
-- [ ] [12. Auth And Authorization Phase 2](#12-auth-and-authorization-phase-2)
+- [X] [12. Add Cards And Optional Expense Card Association](#12-add-cards-and-optional-expense-card-association)
 - [ ] [13. Add Explicit Installment Create Mode](#13-add-explicit-installment-create-mode)
+- [ ] [14. Auth And Authorization Phase 2](#14-auth-and-authorization-phase-2)
 
 ## 1. Review Date And Timezone Modeling
 
@@ -201,19 +202,34 @@ Next step
 
 Implement the use case and controller endpoint for deleting incomes after the shared application-layer foundations are in place.
 
-## 12. Auth And Authorization Phase 2
+## 12. Add Cards And Optional Expense Card Association
 
 Context
 
-The core API can evolve for a while with a fixed user behind `ICurrentUser`, but the product will eventually need real authentication and authorization flows for multiple users.
+The domain and persistence model already include `Card` and an optional `Expense.CardId`, but the API still does not expose card CRUD or allow clients to associate a card explicitly when creating or reading expenses.
 
 Motivation
 
-Identity flows such as user creation, email validation, token issuance, and session management are important, but they are not required to keep evolving the core business API if phase 1 already isolates user context correctly.
+Card becomes part of the expense identity for many real flows, especially installment purchases. If the API does not expose cards consistently, the client cannot model statement-based spending accurately and the monthly expense view stays ambiguous about whether a purchase belongs to cash flow or a specific card.
 
-Next step
+Decision
 
-Replace the fixed current-user implementation with real authentication and authorization flows, such as JWT in cookies or another session mechanism, once the core API surface is stable.
+Adopt these rules for this phase:
+
+- Card association on expense is optional. An expense may exist without any linked card.
+- The source of truth for card association is the expense itself through `CardId`.
+- Monthly expense response should remain installment-centric, with a single `installments[]` list. Installments whose parent expense has a linked card should include an optional `cardId`, instead of returning a separate top-level card grouping.
+- Expense read responses should also expose the same optional `cardId` so the contract stays consistent between `GET /expenses`, `GET /expenses/{id}`, and `GET /expenses/monthly`.
+- Expense responses should expose only the linked `cardId`. Card details continue to be resolved through card endpoints when needed.
+- No separate card-specific or statement-oriented monthly endpoint will be added in this item. The current monthly expense contract remains the official monthly read model for now.
+- Expense update remains out of scope for now. Changing card association on an existing expense continues to follow the current delete-and-recreate workflow unless a dedicated mutation is added later.
+
+Suggested phases
+
+- Phase 1: Define card contract and implement card CRUD endpoints with user scoping, validation, and ownership checks. Done.
+- Phase 2: Extend expense create request with optional `cardId` and validate that the referenced card belongs to the current user. Done.
+- Phase 3: Expose optional `cardId` in expense responses and monthly installment responses. Done.
+- Phase 4: Keep card-specific monthly aggregations and statement-oriented queries out of the current contract. `GET /expenses/monthly` plus `cardId` remains the supported monthly view for now. Done.
 
 ## 13. Add Explicit Installment Create Mode
 
@@ -231,3 +247,17 @@ Extend expense creation so the client can choose between:
 
 - generated schedule mode, where the server derives installments from aggregate inputs;
 - explicit schedule mode, where the client sends `installments[]` with exact amounts and due dates and the server derives `TotalAmount` from that list.
+
+## 14. Auth And Authorization Phase 2
+
+Context
+
+The core API can evolve for a while with a fixed user behind `ICurrentUser`, but the product will eventually need real authentication and authorization flows for multiple users.
+
+Motivation
+
+Identity flows such as user creation, email validation, token issuance, and session management are important, but they are not required to keep evolving the core business API if phase 1 already isolates user context correctly.
+
+Next step
+
+Replace the fixed current-user implementation with real authentication and authorization flows, such as JWT in cookies or another session mechanism, once the core API surface is stable.

@@ -10,6 +10,7 @@ public class ExpenseResponse
     public DateOnly PurchaseDate { get; init; }
     public ExpensePaymentType PaymentType { get; init; }
     public int TotalInstallments { get; init; }
+    public Guid? CardId { get; init; }
     public IReadOnlyCollection<InstallmentResponse> Installments { get; init; } = [];
 }
 

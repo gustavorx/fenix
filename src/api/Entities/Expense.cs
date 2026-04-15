@@ -17,6 +17,7 @@ public class Expense
         ExpensePaymentType paymentType,
         int installmentsQuantity,
         DateOnly firstDueDate,
+        Guid? cardId,
         Guid userId)
     {
         Id = Guid.NewGuid();
@@ -25,6 +26,7 @@ public class Expense
         PurchaseDate = purchaseDate;
         PaymentType = paymentType;
         InstallmentsQuantity = installmentsQuantity;
+        CardId = cardId;
         UserId = userId;
         User = null!;
 
@@ -57,6 +59,7 @@ public class Expense
         ExpensePaymentType paymentType,
         int? requestedInstallments,
         DateOnly? firstDueDate,
+        Guid? cardId,
         Guid userId)
     {
         var normalizedDescription = description.Trim();
@@ -84,6 +87,7 @@ public class Expense
             paymentType,
             installmentsQuantity,
             firstDueDate ?? purchaseDate,
+            cardId,
             userId);
     }
 

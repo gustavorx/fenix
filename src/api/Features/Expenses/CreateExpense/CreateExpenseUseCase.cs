@@ -4,6 +4,7 @@ using api.Entities;
 using api.Features.Expenses.Shared;
 using api.Shared;
 using api.ValueObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.Expenses.CreateExpense;
 
@@ -21,6 +22,20 @@ public class CreateExpenseUseCase(
             return Result<ExpenseResponse>.Failure(errors);
         }
 
+        if (request.CardId.HasValue)
+        {
+            var cardExists = await context.Cards
+                .AnyAsync(
+                    card => card.Id == request.CardId.Value && card.UserId == currentUser.UserId,
+                    cancellationToken);
+
+            if (!cardExists)
+            {
+                return Result<ExpenseResponse>.Failure(
+                    AppError.Validation("expense.card_id.invalid", "CardId must reference a card owned by the current user."));
+            }
+        }
+
         var expense = Expense.Create(
             request.Description!,
             Money.Create(request.TotalAmount),
@@ -28,6 +43,7 @@ public class CreateExpenseUseCase(
             request.PaymentType!.Value,
             request.TotalInstallments,
             request.FirstDueDate,
+            request.CardId,
             currentUser.UserId);
 
         context.Expenses.Add(expense);
