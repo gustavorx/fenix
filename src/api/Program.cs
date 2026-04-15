@@ -1,6 +1,11 @@
 using System.Diagnostics;
 using api.Auth;
 using api.Data;
+using api.Features.Cards.CreateCard;
+using api.Features.Cards.DeleteCard;
+using api.Features.Cards.GetAllCards;
+using api.Features.Cards.GetCardById;
+using api.Features.Cards.UpdateCard;
 using api.Features.Expenses.CreateExpense;
 using api.Features.Expenses.DeleteExpense;
 using api.Features.Expenses.GetAllExpenses;
@@ -35,6 +40,14 @@ builder.Services.AddDbContext<FenixContext>((serviceProvider, options) =>
         .AddInterceptors(serviceProvider.GetRequiredService<DatabaseCommandMetricsInterceptor>()));
 
 builder.Services.AddScoped<ICurrentUser, DevelopmentCurrentUser>();
+
+builder.Services.AddScoped<CreateCardUseCase>();
+builder.Services.AddScoped<DeleteCardUseCase>();
+builder.Services.AddScoped<IValidator<CreateCardRequest>, CreateCardRequestValidator>();
+builder.Services.AddScoped<GetAllCardsUseCase>();
+builder.Services.AddScoped<GetCardByIdUseCase>();
+builder.Services.AddScoped<IValidator<UpdateCardRequest>, UpdateCardRequestValidator>();
+builder.Services.AddScoped<UpdateCardUseCase>();
 
 builder.Services.AddScoped<CreateExpenseUseCase>();
 builder.Services.AddScoped<DeleteExpenseUseCase>();
