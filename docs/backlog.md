@@ -14,8 +14,8 @@
 - [X] [10. Add Income Update Endpoint](#10-add-income-update-endpoint)
 - [X] [11. Add Income Delete Endpoint](#11-add-income-delete-endpoint)
 - [X] [12. Add Cards And Optional Expense Card Association](#12-add-cards-and-optional-expense-card-association)
-- [ ] [13. Add Explicit Installment Create Mode](#13-add-explicit-installment-create-mode)
-- [ ] [14. Auth And Authorization Phase 2](#14-auth-and-authorization-phase-2)
+- [X] [13. Add Explicit Installment Create Mode](#13-add-explicit-installment-create-mode)
+- [X] [14. Auth And Authorization Phase 2](#14-auth-and-authorization-phase-2)
 
 ## 1. Review Date And Timezone Modeling
 

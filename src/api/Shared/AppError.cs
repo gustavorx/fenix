@@ -18,4 +18,7 @@ public sealed class AppError
 
     public static AppError NotFound(string code, string message) =>
         new(code, message, ErrorType.NotFound);
+
+    public static AppError Unauthorized(string code, string message) =>
+        new(code, message, ErrorType.Unauthorized);
 }

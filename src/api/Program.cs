@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using api.Auth;
 using api.Data;
+using api.Entities;
 using api.Features.Cards.CreateCard;
 using api.Features.Cards.DeleteCard;
 using api.Features.Cards.GetAllCards;
@@ -19,7 +20,9 @@ using api.Features.Incomes.GetMonthlyIncomes;
 using api.Features.Incomes.UpdateIncome;
 using api.Observability;
 using api.Shared;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 Activity.DefaultIdFormat = ActivityIdFormat.W3C;
 Activity.ForceDefaultIdFormat = true;
@@ -39,7 +42,7 @@ builder.Services.AddDbContext<FenixContext>((serviceProvider, options) =>
         .UseNpgsql(builder.Configuration.GetConnectionString(("DefaultConnection")))
         .AddInterceptors(serviceProvider.GetRequiredService<DatabaseCommandMetricsInterceptor>()));
 
-builder.Services.AddScoped<ICurrentUser, DevelopmentCurrentUser>();
+builder.Services.AddFenixAuth(builder.Configuration);
 
 builder.Services.AddScoped<CreateCardUseCase>();
 builder.Services.AddScoped<DeleteCardUseCase>();
@@ -73,11 +76,15 @@ var app = builder.Build();
 await using (var scope = app.Services.CreateAsyncScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<FenixContext>();
-    await AppDataInitializer.InitializeAsync(context);
+    var configuredAuthOptions = scope.ServiceProvider.GetRequiredService<IOptions<AuthOptions>>();
+    var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+
+    await AppDataInitializer.InitializeAsync(context, configuredAuthOptions, passwordHasher);
 }
 
 app.UseFenixMetricsEndpoint();
 app.UseMiddleware<RequestObservabilityMiddleware>();
+app.UseFenixAuth();
 
 app.MapControllers();
 

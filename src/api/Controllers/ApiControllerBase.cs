@@ -34,6 +34,7 @@ public abstract class ApiControllerBase : ControllerBase
         {
             ErrorType.Validation => BadRequest(new { errors = result.Errors }),
             ErrorType.NotFound => NotFound(new { errors = result.Errors }),
+            ErrorType.Unauthorized => Unauthorized(new { errors = result.Errors }),
             _ => StatusCode(StatusCodes.Status500InternalServerError)
         };
     }
