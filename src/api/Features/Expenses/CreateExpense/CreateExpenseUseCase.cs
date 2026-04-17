@@ -1,6 +1,7 @@
 using api.Auth;
 using api.Data;
 using api.Entities;
+using api.Enums;
 using api.Features.Expenses.Shared;
 using api.Shared;
 using api.ValueObjects;
@@ -36,15 +37,30 @@ public class CreateExpenseUseCase(
             }
         }
 
-        var expense = Expense.Create(
-            request.Description!,
-            Money.Create(request.TotalAmount),
-            request.PurchaseDate!.Value,
-            request.PaymentType!.Value,
-            request.TotalInstallments,
-            request.FirstDueDate,
-            request.CardId,
-            currentUser.UserId);
+        var expense = request.InstallmentCreateMode switch
+        {
+            InstallmentCreateMode.Generated => Expense.Create(
+                request.Description!,
+                Money.Create(request.TotalAmount!.Value),
+                request.PurchaseDate!.Value,
+                request.PaymentType!.Value,
+                request.TotalInstallments,
+                request.FirstDueDate,
+                request.CardId,
+                currentUser.UserId),
+            InstallmentCreateMode.Explicit => Expense.Create(
+                request.Description!,
+                request.PurchaseDate!.Value,
+                request.PaymentType!.Value,
+                request.Installments!
+                    .Select(installment => new ExpenseInstallmentDraft(
+                        Money.Create(installment.Amount!.Value),
+                        installment.DueDate!.Value))
+                    .ToList(),
+                request.CardId,
+                currentUser.UserId),
+            _ => throw new InvalidOperationException("InstallmentCreateMode must be validated before executing the use case.")
+        };
 
         context.Expenses.Add(expense);
         await context.SaveChangesAsync(cancellationToken);
