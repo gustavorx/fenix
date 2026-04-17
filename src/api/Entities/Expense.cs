@@ -16,7 +16,6 @@ public class Expense
         DateOnly purchaseDate,
         ExpensePaymentType paymentType,
         int installmentsQuantity,
-        DateOnly firstDueDate,
         Guid? cardId,
         Guid userId)
     {
@@ -29,11 +28,6 @@ public class Expense
         CardId = cardId;
         UserId = userId;
         User = null!;
-
-        foreach (var installment in CreateInstallments(firstDueDate, installmentsQuantity))
-        {
-            Installments.Add(installment);
-        }
     }
 
     public Guid Id { get; private set; }
@@ -80,15 +74,61 @@ public class Expense
                 nameof(requestedInstallments));
         }
 
-        return new Expense(
+        var expense = new Expense(
             normalizedDescription!,
             totalAmount,
             purchaseDate,
             paymentType,
             installmentsQuantity,
-            firstDueDate ?? purchaseDate,
             cardId,
             userId);
+
+        expense.Installments = expense.CreateInstallments(totalAmount, firstDueDate ?? purchaseDate, installmentsQuantity);
+        return expense;
+    }
+
+    public static Expense Create(
+        string description,
+        DateOnly purchaseDate,
+        ExpensePaymentType paymentType,
+        IReadOnlyCollection<ExpenseInstallmentDraft> installments,
+        Guid? cardId,
+        Guid userId)
+    {
+        var normalizedDescription = description.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedDescription))
+        {
+            throw new ArgumentException("Description is required.", nameof(description));
+        }
+
+        if (installments.Count == 0)
+        {
+            throw new ArgumentException("Installments are required.", nameof(installments));
+        }
+
+        var totalAmount = installments
+            .Select(installment => installment.Amount)
+            .Aggregate(Money.Zero, (current, amount) => current + amount);
+
+        if (totalAmount.Value <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(installments), "TotalAmount must be greater than zero.");
+        }
+
+        var expense = new Expense(
+            normalizedDescription!,
+            totalAmount,
+            purchaseDate,
+            paymentType,
+            installments.Count,
+            cardId,
+            userId);
+
+        expense.Installments = installments
+            .Select((installment, index) => Installment.Create(expense.Id, index + 1, installment.Amount, installment.DueDate))
+            .ToList();
+
+        return expense;
     }
 
     public static bool TryResolveInstallmentsQuantity(
@@ -112,9 +152,9 @@ public class Expense
         return false;
     }
 
-    private IReadOnlyList<Installment> CreateInstallments(DateOnly firstDueDate, int installmentsQuantity)
+    private ICollection<Installment> CreateInstallments(Money totalAmount, DateOnly firstDueDate, int installmentsQuantity)
     {
-        var installmentAmounts = SplitAmount(TotalAmount, installmentsQuantity);
+        var installmentAmounts = SplitAmount(totalAmount, installmentsQuantity);
 
         return installmentAmounts
             .Select((amount, index) => Installment.Create(Id, index + 1, amount, firstDueDate.AddMonths(index)))
