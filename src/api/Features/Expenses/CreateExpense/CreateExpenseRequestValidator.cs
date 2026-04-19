@@ -44,17 +44,23 @@ public sealed class CreateExpenseRequestValidator : IValidator<CreateExpenseRequ
             return errors;
         }
 
+        decimal? expenseTotal = null;
+
         if (createMode == InstallmentCreateMode.Generated)
         {
-            ValidateGeneratedMode(request, hasValidPaymentType, paymentType, errors);
-            return errors;
+            expenseTotal = ValidateGeneratedMode(request, hasValidPaymentType, paymentType, errors);
         }
 
-        ValidateExplicitMode(request, errors);
+        if (createMode == InstallmentCreateMode.Explicit)
+        {
+            expenseTotal = ValidateExplicitMode(request, errors);
+        }
+
+        ValidateShares(request.Shares, expenseTotal, errors);
         return errors;
     }
 
-    private static void ValidateGeneratedMode(
+    private static decimal? ValidateGeneratedMode(
         CreateExpenseRequest request,
         bool hasValidPaymentType,
         ExpensePaymentType? paymentType,
@@ -91,9 +97,13 @@ public sealed class CreateExpenseRequestValidator : IValidator<CreateExpenseRequ
                 "expense.total_installments.invalid",
                 "TotalInstallments must be 1 for cash or greater than 1 for installment."));
         }
+
+        return request.TotalAmount is decimal totalAmount && totalAmount > 0m && Money.HasValidScale(totalAmount)
+            ? totalAmount
+            : null;
     }
 
-    private static void ValidateExplicitMode(CreateExpenseRequest request, List<AppError> errors)
+    private static decimal? ValidateExplicitMode(CreateExpenseRequest request, List<AppError> errors)
     {
         if (request.TotalAmount is not null)
         {
@@ -121,8 +131,11 @@ public sealed class CreateExpenseRequestValidator : IValidator<CreateExpenseRequ
             errors.Add(AppError.Validation(
                 "expense.installments.required",
                 "Installments are required when InstallmentCreateMode is Explicit."));
-            return;
+            return null;
         }
+
+        var canComputeTotal = true;
+        var totalAmount = 0m;
 
         for (var index = 0; index < request.Installments.Count; index++)
         {
@@ -134,6 +147,7 @@ public sealed class CreateExpenseRequestValidator : IValidator<CreateExpenseRequ
                 errors.Add(AppError.Validation(
                     $"expense.installments[{pathIndex}].amount.required",
                     $"Installments[{pathIndex}].Amount is required."));
+                canComputeTotal = false;
             }
             else
             {
@@ -142,6 +156,7 @@ public sealed class CreateExpenseRequestValidator : IValidator<CreateExpenseRequ
                     errors.Add(AppError.Validation(
                         $"expense.installments[{pathIndex}].amount.invalid",
                         $"Installments[{pathIndex}].Amount must be greater than zero."));
+                    canComputeTotal = false;
                 }
 
                 if (!Money.HasValidScale(installment.Amount.Value))
@@ -149,6 +164,12 @@ public sealed class CreateExpenseRequestValidator : IValidator<CreateExpenseRequ
                     errors.Add(AppError.Validation(
                         $"expense.installments[{pathIndex}].amount.scale",
                         $"Installments[{pathIndex}].Amount must have at most 2 decimal places."));
+                    canComputeTotal = false;
+                }
+
+                if (installment.Amount > 0 && Money.HasValidScale(installment.Amount.Value))
+                {
+                    totalAmount += installment.Amount.Value;
                 }
             }
 
@@ -158,6 +179,114 @@ public sealed class CreateExpenseRequestValidator : IValidator<CreateExpenseRequ
                     $"expense.installments[{pathIndex}].due_date.required",
                     $"Installments[{pathIndex}].DueDate is required."));
             }
+        }
+
+        return canComputeTotal ? totalAmount : null;
+    }
+
+    private static void ValidateShares(
+        IReadOnlyCollection<CreateExpenseShareRequest>? shares,
+        decimal? expenseTotal,
+        List<AppError> errors)
+    {
+        if (shares == null)
+        {
+            return;
+        }
+
+        var shareList = shares.ToList();
+        var totalSharedAmount = 0m;
+        var canCompareTotals = expenseTotal is not null;
+
+        for (var shareIndex = 0; shareIndex < shareList.Count; shareIndex++)
+        {
+            var share = shareList[shareIndex];
+            var sharePathIndex = shareIndex + 1;
+
+            if (share.PersonId is null)
+            {
+                errors.Add(AppError.Validation(
+                    $"expense.shares[{sharePathIndex}].person_id.required",
+                    $"Shares[{sharePathIndex}].PersonId is required."));
+            }
+            else if (share.PersonId == Guid.Empty)
+            {
+                errors.Add(AppError.Validation(
+                    $"expense.shares[{sharePathIndex}].person_id.invalid",
+                    $"Shares[{sharePathIndex}].PersonId must be a valid identifier."));
+            }
+
+            if (share.Installments is not { Count: > 0 })
+            {
+                errors.Add(AppError.Validation(
+                    $"expense.shares[{sharePathIndex}].installments.required",
+                    $"Shares[{sharePathIndex}].Installments must contain at least one item."));
+                canCompareTotals = false;
+                continue;
+            }
+
+            var canComputeShareTotal = true;
+            var shareTotal = 0m;
+
+            for (var installmentIndex = 0; installmentIndex < share.Installments.Count; installmentIndex++)
+            {
+                var installment = share.Installments.ElementAt(installmentIndex);
+                var installmentPathIndex = installmentIndex + 1;
+
+                if (installment.Amount is null)
+                {
+                    errors.Add(AppError.Validation(
+                        $"expense.shares[{sharePathIndex}].installments[{installmentPathIndex}].amount.required",
+                        $"Shares[{sharePathIndex}].Installments[{installmentPathIndex}].Amount is required."));
+                    canComputeShareTotal = false;
+                }
+                else
+                {
+                    if (installment.Amount <= 0)
+                    {
+                        errors.Add(AppError.Validation(
+                            $"expense.shares[{sharePathIndex}].installments[{installmentPathIndex}].amount.invalid",
+                            $"Shares[{sharePathIndex}].Installments[{installmentPathIndex}].Amount must be greater than zero."));
+                        canComputeShareTotal = false;
+                    }
+
+                    if (!Money.HasValidScale(installment.Amount.Value))
+                    {
+                        errors.Add(AppError.Validation(
+                            $"expense.shares[{sharePathIndex}].installments[{installmentPathIndex}].amount.scale",
+                            $"Shares[{sharePathIndex}].Installments[{installmentPathIndex}].Amount must have at most 2 decimal places."));
+                        canComputeShareTotal = false;
+                    }
+
+                    if (installment.Amount > 0 && Money.HasValidScale(installment.Amount.Value))
+                    {
+                        shareTotal += installment.Amount.Value;
+                    }
+                }
+
+                if (installment.DueDate is null)
+                {
+                    errors.Add(AppError.Validation(
+                        $"expense.shares[{sharePathIndex}].installments[{installmentPathIndex}].due_date.required",
+                        $"Shares[{sharePathIndex}].Installments[{installmentPathIndex}].DueDate is required."));
+                }
+            }
+
+            if (canComputeShareTotal)
+            {
+                totalSharedAmount += shareTotal;
+            }
+            else
+            {
+                canCompareTotals = false;
+            }
+        }
+
+        if (canCompareTotals && totalSharedAmount > expenseTotal!.Value)
+        {
+            errors.Add(AppError.Validation(
+                "expense.shares.total.exceeded",
+                "The total shared amount must be less than or equal to the expense total amount."));
         }
     }
 }

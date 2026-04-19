@@ -1,8 +1,9 @@
 using api.Entities;
+using api.Features.Expenses.Shared;
 
-namespace api.Features.Expenses.Shared;
+namespace api.Features.Expenses.GetExpenseById;
 
-public class ExpenseResponse
+public class ExpenseDetailResponse
 {
     public Guid Id { get; init; }
     public string Description { get; init; } = string.Empty;
@@ -12,4 +13,5 @@ public class ExpenseResponse
     public int TotalInstallments { get; init; }
     public Guid? CardId { get; init; }
     public IReadOnlyCollection<InstallmentResponse> Installments { get; init; } = [];
+    public IReadOnlyCollection<ExpenseShareResponse> Shares { get; init; } = [];
 }

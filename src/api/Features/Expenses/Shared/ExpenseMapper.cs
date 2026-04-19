@@ -7,10 +7,6 @@ public static class ExpenseMapper
 {
     public static ExpenseResponse ToResponse(this Expense expense)
     {
-        var orderedInstallments = expense.Installments
-            .OrderBy(installment => installment.Number)
-            .ToList();
-
         return new ExpenseResponse
         {
             Id = expense.Id,
@@ -20,7 +16,7 @@ public static class ExpenseMapper
             PaymentType = expense.PaymentType,
             TotalInstallments = expense.InstallmentsQuantity,
             CardId = expense.CardId,
-            Installments = orderedInstallments.Select(ToInstallmentResponse).ToList()
+            Installments = expense.GetOrderedInstallmentResponses()
         };
     }
 
@@ -53,5 +49,13 @@ public static class ExpenseMapper
             DueDate = installment.DueDate,
             Paid = installment.Paid
         };
+    }
+
+    private static IReadOnlyCollection<InstallmentResponse> GetOrderedInstallmentResponses(this Expense expense)
+    {
+        return expense.Installments
+            .OrderBy(installment => installment.Number)
+            .Select(ToInstallmentResponse)
+            .ToList();
     }
 }

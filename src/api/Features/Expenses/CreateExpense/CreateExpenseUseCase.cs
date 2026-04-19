@@ -37,6 +37,26 @@ public class CreateExpenseUseCase(
             }
         }
 
+        var sharePersonIds = request.Shares?
+            .Select(share => share.PersonId!.Value)
+            .Distinct()
+            .ToArray() ?? [];
+
+        if (sharePersonIds.Length > 0)
+        {
+            var ownedPeopleCount = await context.People
+                .Where(person => person.UserId == currentUser.UserId && sharePersonIds.Contains(person.Id))
+                .CountAsync(cancellationToken);
+
+            if (ownedPeopleCount != sharePersonIds.Length)
+            {
+                return Result<ExpenseResponse>.Failure(
+                    AppError.Validation(
+                        "expense.shares.person_id.invalid",
+                        "Each share PersonId must reference a person owned by the current user."));
+            }
+        }
+
         var expense = request.InstallmentCreateMode switch
         {
             InstallmentCreateMode.Generated => Expense.Create(
@@ -61,6 +81,21 @@ public class CreateExpenseUseCase(
                 currentUser.UserId),
             _ => throw new InvalidOperationException("InstallmentCreateMode must be validated before executing the use case.")
         };
+
+        if (request.Shares is { Count: > 0 })
+        {
+            foreach (var share in request.Shares)
+            {
+                expense.AddShare(ExpenseShare.Create(
+                    expense.Id,
+                    share.PersonId!.Value,
+                    share.Installments!
+                        .Select(installment => new ExpenseShareInstallmentDraft(
+                            Money.Create(installment.Amount!.Value),
+                            installment.DueDate!.Value))
+                        .ToList()));
+            }
+        }
 
         context.Expenses.Add(expense);
         await context.SaveChangesAsync(cancellationToken);
