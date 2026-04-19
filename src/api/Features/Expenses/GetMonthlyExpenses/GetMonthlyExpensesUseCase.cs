@@ -34,13 +34,30 @@ public class GetMonthlyExpensesUseCase(FenixContext context, ICurrentUser curren
             .ThenBy(installment => installment.Number)
             .ToListAsync(cancellationToken);
 
+        var expenseIds = installments
+            .Select(installment => installment.ExpenseId)
+            .Distinct()
+            .ToList();
+
+        var expenseIdsWithShares = await context.ExpenseShares
+            .AsNoTracking()
+            .Where(share => expenseIds.Contains(share.ExpenseId))
+            .Select(share => share.ExpenseId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        var expenseIdsWithSharesLookup = expenseIdsWithShares.ToHashSet();
+
         return Result<MonthlyExpensesResponse>.Success(
             new MonthlyExpensesResponse
             {
                 Month = month,
                 Year = year,
                 TotalAmount = installments.Aggregate(Money.Zero, (total, installment) => total + installment.Amount).Value,
-                Installments = installments.Select(installment => installment.ToMonthlyInstallmentResponse()).ToList()
+                Installments = installments
+                    .Select(installment => installment.ToMonthlyInstallmentResponse(
+                        expenseIdsWithSharesLookup.Contains(installment.ExpenseId)))
+                    .ToList()
             });
     }
 }
