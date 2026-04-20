@@ -1,5 +1,6 @@
 using api.Entities;
 using api.Enums;
+using api.Features.ExpenseShares.Shared;
 using api.Shared;
 using api.ValueObjects;
 
@@ -216,65 +217,17 @@ public sealed class CreateExpenseRequestValidator : IValidator<CreateExpenseRequ
                     $"Shares[{sharePathIndex}].PersonId must be a valid identifier."));
             }
 
-            if (share.Installments is not { Count: > 0 })
+            var shareTotal = ExpenseShareInstallmentRequestValidation.ValidateInstallments(
+                share.Installments,
+                $"expense.shares[{sharePathIndex}].installments",
+                $"Shares[{sharePathIndex}].Installments",
+                installment => installment.Amount,
+                installment => installment.DueDate,
+                errors);
+
+            if (shareTotal is not null)
             {
-                errors.Add(AppError.Validation(
-                    $"expense.shares[{sharePathIndex}].installments.required",
-                    $"Shares[{sharePathIndex}].Installments must contain at least one item."));
-                canCompareTotals = false;
-                continue;
-            }
-
-            var canComputeShareTotal = true;
-            var shareTotal = 0m;
-
-            for (var installmentIndex = 0; installmentIndex < share.Installments.Count; installmentIndex++)
-            {
-                var installment = share.Installments.ElementAt(installmentIndex);
-                var installmentPathIndex = installmentIndex + 1;
-
-                if (installment.Amount is null)
-                {
-                    errors.Add(AppError.Validation(
-                        $"expense.shares[{sharePathIndex}].installments[{installmentPathIndex}].amount.required",
-                        $"Shares[{sharePathIndex}].Installments[{installmentPathIndex}].Amount is required."));
-                    canComputeShareTotal = false;
-                }
-                else
-                {
-                    if (installment.Amount <= 0)
-                    {
-                        errors.Add(AppError.Validation(
-                            $"expense.shares[{sharePathIndex}].installments[{installmentPathIndex}].amount.invalid",
-                            $"Shares[{sharePathIndex}].Installments[{installmentPathIndex}].Amount must be greater than zero."));
-                        canComputeShareTotal = false;
-                    }
-
-                    if (!Money.HasValidScale(installment.Amount.Value))
-                    {
-                        errors.Add(AppError.Validation(
-                            $"expense.shares[{sharePathIndex}].installments[{installmentPathIndex}].amount.scale",
-                            $"Shares[{sharePathIndex}].Installments[{installmentPathIndex}].Amount must have at most 2 decimal places."));
-                        canComputeShareTotal = false;
-                    }
-
-                    if (installment.Amount > 0 && Money.HasValidScale(installment.Amount.Value))
-                    {
-                        shareTotal += installment.Amount.Value;
-                    }
-                }
-
-                if (installment.DueDate is null)
-                {
-                    errors.Add(AppError.Validation(
-                        $"expense.shares[{sharePathIndex}].installments[{installmentPathIndex}].due_date.required",
-                        $"Shares[{sharePathIndex}].Installments[{installmentPathIndex}].DueDate is required."));
-                }
-            }
-
-            if (canComputeShareTotal)
-            {
-                totalSharedAmount += shareTotal;
+                totalSharedAmount += shareTotal.Value;
             }
             else
             {

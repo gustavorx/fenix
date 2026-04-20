@@ -1,4 +1,5 @@
 using api.Entities;
+using api.Features.ExpenseShares.Shared;
 using api.Features.Expenses.Shared;
 
 namespace api.Features.Expenses.GetExpenseById;
@@ -24,39 +25,8 @@ public static class ExpenseDetailMapper
                 .OrderBy(share => share.PersonId == null ? 1 : 0)
                 .ThenBy(share => share.Person == null ? null : share.Person.Name)
                 .ThenBy(share => share.Id)
-                .Select(ToExpenseShareResponse)
+                .Select(ExpenseShareMapper.ToResponse)
                 .ToList()
-        };
-    }
-
-    private static ExpenseShareResponse ToExpenseShareResponse(ExpenseShare share)
-    {
-        return new ExpenseShareResponse
-        {
-            Id = share.Id,
-            PersonId = share.PersonId,
-            PersonName = share.Person?.Name,
-            Amount = share.Amount.Value,
-            PaidAmount = share.PaidAmount.Value,
-            OutstandingAmount = share.OutstandingAmount.Value,
-            IsFullyPaid = share.IsFullyPaid,
-            Installments = share.Installments
-                .OrderBy(installment => installment.DueDate)
-                .ThenBy(installment => installment.Id)
-                .Select(ToExpenseShareInstallmentResponse)
-                .ToList()
-        };
-    }
-
-    private static ExpenseShareInstallmentResponse ToExpenseShareInstallmentResponse(ExpenseShareInstallment installment)
-    {
-        return new ExpenseShareInstallmentResponse
-        {
-            Id = installment.Id,
-            Amount = installment.Amount.Value,
-            DueDate = installment.DueDate,
-            PaidDate = installment.PaidDate,
-            IsPaid = installment.IsPaid
         };
     }
 }

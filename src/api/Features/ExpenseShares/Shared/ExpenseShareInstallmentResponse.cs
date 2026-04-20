@@ -1,4 +1,4 @@
-namespace api.Features.Expenses.GetExpenseById;
+namespace api.Features.ExpenseShares.Shared;
 
 public class ExpenseShareInstallmentResponse
 {

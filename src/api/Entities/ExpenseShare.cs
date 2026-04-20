@@ -28,6 +28,12 @@ public class ExpenseShare
         Expense = null!;
     }
 
+    private ExpenseShare(Guid expenseId, Person person, IReadOnlyCollection<ExpenseShareInstallmentDraft> installments)
+        : this(expenseId, person.Id, installments)
+    {
+        Person = person;
+    }
+
     public Guid Id { get; private set; }
     public Money Amount { get; private set; }
 
@@ -53,5 +59,33 @@ public class ExpenseShare
         IReadOnlyCollection<ExpenseShareInstallmentDraft> installments)
     {
         return new ExpenseShare(expenseId, personId, installments);
+    }
+
+    public static ExpenseShare Create(
+        Guid expenseId,
+        Person person,
+        IReadOnlyCollection<ExpenseShareInstallmentDraft> installments)
+    {
+        ArgumentNullException.ThrowIfNull(person);
+
+        return new ExpenseShare(expenseId, person, installments);
+    }
+
+    public void AssignPerson(Guid personId)
+    {
+        if (personId == Guid.Empty)
+        {
+            throw new ArgumentException("PersonId must be a valid identifier.", nameof(personId));
+        }
+
+        PersonId = personId;
+    }
+
+    public void AssignPerson(Person person)
+    {
+        ArgumentNullException.ThrowIfNull(person);
+
+        AssignPerson(person.Id);
+        Person = person;
     }
 }
