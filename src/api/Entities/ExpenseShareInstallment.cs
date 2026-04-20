@@ -45,4 +45,27 @@ public class ExpenseShareInstallment
     {
         return new ExpenseShareInstallment(expenseShareId, amount, dueDate, paidDate);
     }
+
+    internal void Update(Money? amount, DateOnly? dueDate, DateOnly? paidDate, bool updatePaidDate)
+    {
+        if (amount.HasValue)
+        {
+            if (amount.Value.Value <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be greater than zero.");
+            }
+
+            Amount = amount.Value;
+        }
+
+        if (dueDate.HasValue)
+        {
+            DueDate = dueDate.Value;
+        }
+
+        if (updatePaidDate)
+        {
+            PaidDate = paidDate;
+        }
+    }
 }
