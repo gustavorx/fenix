@@ -7,36 +7,37 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.Incomes.GetMonthlyIncomes;
 
-public class GetMonthlyIncomesUseCase(FenixContext context, ICurrentUser currentUser)
+public class GetMonthlyIncomesUseCase(
+    FenixContext context,
+    ICurrentUser currentUser,
+    IValidator<GetMonthlyIncomesRequest> validator)
 {
-    public async Task<Result<MonthlyIncomesResponse>> ExecuteAsync(int month, int year, CancellationToken cancellationToken)
+    public async Task<Result<MonthlyIncomesResponse>> ExecuteAsync(
+        GetMonthlyIncomesRequest request,
+        CancellationToken cancellationToken)
     {
-        if (month is < 1 or > 12)
+        var errors = validator.Validate(request);
+        if (errors.Count > 0)
         {
-            return Result<MonthlyIncomesResponse>.Failure(
-                AppError.Validation("income.month.invalid", "Month must be between 1 and 12."));
+            return Result<MonthlyIncomesResponse>.Failure(errors);
         }
 
-        if (year is < 1 or > 9999)
-        {
-            return Result<MonthlyIncomesResponse>.Failure(
-                AppError.Validation("income.year.invalid", "Year must be between 1 and 9999."));
-        }
+        var period = MonthPeriod.Create(request.Month, request.Year);
 
         var incomes = await context.Incomes
             .AsNoTracking()
             .Where(income =>
                 income.UserId == currentUser.UserId &&
-                income.ReceivedDate.Month == month &&
-                income.ReceivedDate.Year == year)
+                income.ReceivedDate >= period.StartDate &&
+                income.ReceivedDate <= period.EndDate)
             .OrderByDescending(income => income.ReceivedDate)
             .ToListAsync(cancellationToken);
 
         return Result<MonthlyIncomesResponse>.Success(
             new MonthlyIncomesResponse
             {
-                Month = month,
-                Year = year,
+                Month = request.Month,
+                Year = request.Year,
                 TotalAmount = incomes.Aggregate(Money.Zero, (total, income) => total + income.Amount).Value,
                 Incomes = incomes.Select(IncomeMapper.ToResponse).ToList()
             });

@@ -7,29 +7,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.Expenses.GetMonthlyExpenses;
 
-public class GetMonthlyExpensesUseCase(FenixContext context, ICurrentUser currentUser)
+public class GetMonthlyExpensesUseCase(
+    FenixContext context,
+    ICurrentUser currentUser,
+    IValidator<GetMonthlyExpensesRequest> validator)
 {
-    public async Task<Result<MonthlyExpensesResponse>> ExecuteAsync(int month, int year, CancellationToken cancellationToken)
+    public async Task<Result<MonthlyExpensesResponse>> ExecuteAsync(
+        GetMonthlyExpensesRequest request,
+        CancellationToken cancellationToken)
     {
-        if (month is < 1 or > 12)
+        var errors = validator.Validate(request);
+        if (errors.Count > 0)
         {
-            return Result<MonthlyExpensesResponse>.Failure(
-                AppError.Validation("expense.month.invalid", "Month must be between 1 and 12."));
+            return Result<MonthlyExpensesResponse>.Failure(errors);
         }
 
-        if (year is < 1 or > 9999)
-        {
-            return Result<MonthlyExpensesResponse>.Failure(
-                AppError.Validation("expense.year.invalid", "Year must be between 1 and 9999."));
-        }
+        var period = MonthPeriod.Create(request.Month, request.Year);
 
         var installments = await context.Installments
             .AsNoTracking()
             .Include(installment => installment.Expense)
             .Where(installment =>
                 installment.Expense.UserId == currentUser.UserId &&
-                installment.DueDate.Month == month &&
-                installment.DueDate.Year == year)
+                installment.DueDate >= period.StartDate &&
+                installment.DueDate <= period.EndDate)
             .OrderBy(installment => installment.DueDate)
             .ThenBy(installment => installment.Number)
             .ToListAsync(cancellationToken);
@@ -51,8 +52,8 @@ public class GetMonthlyExpensesUseCase(FenixContext context, ICurrentUser curren
         return Result<MonthlyExpensesResponse>.Success(
             new MonthlyExpensesResponse
             {
-                Month = month,
-                Year = year,
+                Month = request.Month,
+                Year = request.Year,
                 TotalAmount = installments.Aggregate(Money.Zero, (total, installment) => total + installment.Amount).Value,
                 Installments = installments
                     .Select(installment => installment.ToMonthlyInstallmentResponse(

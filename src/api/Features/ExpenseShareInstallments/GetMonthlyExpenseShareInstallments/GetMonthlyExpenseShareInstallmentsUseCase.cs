@@ -6,28 +6,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Features.ExpenseShareInstallments.GetMonthlyExpenseShareInstallments;
 
-public class GetMonthlyExpenseShareInstallmentsUseCase(FenixContext context, ICurrentUser currentUser)
+public class GetMonthlyExpenseShareInstallmentsUseCase(
+    FenixContext context,
+    ICurrentUser currentUser,
+    IValidator<GetMonthlyExpenseShareInstallmentsRequest> validator)
 {
     public async Task<Result<MonthlyExpenseShareInstallmentsResponse>> ExecuteAsync(
-        int month,
-        int year,
+        GetMonthlyExpenseShareInstallmentsRequest request,
         CancellationToken cancellationToken)
     {
-        if (month is < 1 or > 12)
+        var errors = validator.Validate(request);
+        if (errors.Count > 0)
         {
-            return Result<MonthlyExpenseShareInstallmentsResponse>.Failure(
-                AppError.Validation(
-                    "expense_share_installment.month.invalid",
-                    "Month must be between 1 and 12."));
+            return Result<MonthlyExpenseShareInstallmentsResponse>.Failure(errors);
         }
 
-        if (year is < 1 or > 9999)
-        {
-            return Result<MonthlyExpenseShareInstallmentsResponse>.Failure(
-                AppError.Validation(
-                    "expense_share_installment.year.invalid",
-                    "Year must be between 1 and 9999."));
-        }
+        var period = MonthPeriod.Create(request.Month, request.Year);
 
         var installments = await context.ExpenseShareInstallments
             .AsNoTracking()
@@ -37,8 +31,8 @@ public class GetMonthlyExpenseShareInstallmentsUseCase(FenixContext context, ICu
                 .ThenInclude(share => share.Person)
             .Where(installment =>
                 installment.ExpenseShare.Expense.UserId == currentUser.UserId &&
-                installment.DueDate.Month == month &&
-                installment.DueDate.Year == year)
+                installment.DueDate >= period.StartDate &&
+                installment.DueDate <= period.EndDate)
             .OrderBy(installment => installment.DueDate)
             .ThenBy(installment => installment.ExpenseShare.Expense.Description)
             .ThenBy(installment => installment.ExpenseShare.Person == null
@@ -50,8 +44,8 @@ public class GetMonthlyExpenseShareInstallmentsUseCase(FenixContext context, ICu
         return Result<MonthlyExpenseShareInstallmentsResponse>.Success(
             new MonthlyExpenseShareInstallmentsResponse
             {
-                Month = month,
-                Year = year,
+                Month = request.Month,
+                Year = request.Year,
                 TotalAmount = installments
                     .Aggregate(Money.Zero, (total, installment) => total + installment.Amount)
                     .Value,

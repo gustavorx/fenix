@@ -46,11 +46,10 @@ public class ExpenseController(
 
     [HttpGet("monthly")]
     public async Task<IActionResult> GetMonthlyExpenses(
-        [FromQuery] int month,
-        [FromQuery] int year,
+        [FromQuery] GetMonthlyExpensesRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await getMonthlyExpensesUseCase.ExecuteAsync(month, year, cancellationToken);
+        var result = await getMonthlyExpensesUseCase.ExecuteAsync(request, cancellationToken);
         
         return ToActionResult(result, Ok);
     }
