@@ -2,6 +2,6 @@ namespace api.Features.ExpenseShareInstallments.GetMonthlyExpenseShareInstallmen
 
 public class GetMonthlyExpenseShareInstallmentsRequest
 {
-    public int Month { get; init; }
-    public int Year { get; init; }
+    public int Month { get; set; }
+    public int Year { get; set; }
 }

@@ -2,6 +2,6 @@ namespace api.Features.Incomes.GetMonthlyIncomes;
 
 public class GetMonthlyIncomesRequest
 {
-    public int Month { get; init; }
-    public int Year { get; init; }
+    public int Month { get; set; }
+    public int Year { get; set; }
 }
