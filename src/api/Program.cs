@@ -1,25 +1,9 @@
 using System.Diagnostics;
 using api.Auth;
+using api.Configuration;
 using api.Data;
 using api.Entities;
-using api.Features.Cards.CreateCard;
-using api.Features.Cards.DeleteCard;
-using api.Features.Cards.GetAllCards;
-using api.Features.Cards.GetCardById;
-using api.Features.Cards.UpdateCard;
-using api.Features.Expenses.CreateExpense;
-using api.Features.Expenses.DeleteExpense;
-using api.Features.Expenses.GetAllExpenses;
-using api.Features.Expenses.GetExpenseById;
-using api.Features.Expenses.GetMonthlyExpenses;
-using api.Features.Incomes.CreateIncome;
-using api.Features.Incomes.DeleteIncome;
-using api.Features.Incomes.GetAllIncomes;
-using api.Features.Incomes.GetIncomeById;
-using api.Features.Incomes.GetMonthlyIncomes;
-using api.Features.Incomes.UpdateIncome;
 using api.Observability;
-using api.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -43,30 +27,7 @@ builder.Services.AddDbContext<FenixContext>((serviceProvider, options) =>
         .AddInterceptors(serviceProvider.GetRequiredService<DatabaseCommandMetricsInterceptor>()));
 
 builder.Services.AddFenixAuth(builder.Configuration);
-
-builder.Services.AddScoped<CreateCardUseCase>();
-builder.Services.AddScoped<DeleteCardUseCase>();
-builder.Services.AddScoped<IValidator<CreateCardRequest>, CreateCardRequestValidator>();
-builder.Services.AddScoped<GetAllCardsUseCase>();
-builder.Services.AddScoped<GetCardByIdUseCase>();
-builder.Services.AddScoped<IValidator<UpdateCardRequest>, UpdateCardRequestValidator>();
-builder.Services.AddScoped<UpdateCardUseCase>();
-
-builder.Services.AddScoped<CreateExpenseUseCase>();
-builder.Services.AddScoped<DeleteExpenseUseCase>();
-builder.Services.AddScoped<IValidator<CreateExpenseRequest>, CreateExpenseRequestValidator>();
-builder.Services.AddScoped<GetAllExpensesUseCase>();
-builder.Services.AddScoped<GetExpenseByIdUseCase>();
-builder.Services.AddScoped<GetMonthlyExpensesUseCase>();
-
-builder.Services.AddScoped<CreateIncomeUseCase>();
-builder.Services.AddScoped<DeleteIncomeUseCase>();
-builder.Services.AddScoped<IValidator<CreateIncomeRequest>, CreateIncomeRequestValidator>();
-builder.Services.AddScoped<IValidator<UpdateIncomeRequest>, UpdateIncomeRequestValidator>();
-builder.Services.AddScoped<GetAllIncomesUseCase>();
-builder.Services.AddScoped<GetIncomeByIdUseCase>();
-builder.Services.AddScoped<GetMonthlyIncomesUseCase>();
-builder.Services.AddScoped<UpdateIncomeUseCase>();
+builder.Services.AddApplicationServices();
 
 builder.Services.AddControllers();
 builder.Services.AddFenixObservability(builder.Configuration);

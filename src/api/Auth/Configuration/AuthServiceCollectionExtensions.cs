@@ -1,8 +1,5 @@
 using System.Text;
 using api.Entities;
-using api.Features.Auth.Login;
-using api.Features.Auth.Me;
-using api.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,7 +19,6 @@ public static class AuthServiceCollectionExtensions
         AddAuthCoreServices(services);
         AddJwtAuthentication(services, authOptions);
         AddAuthorization(services);
-        AddAuthUseCases(services);
 
         return services;
     }
@@ -59,13 +55,6 @@ public static class AuthServiceCollectionExtensions
                 .RequireAuthenticatedUser()
                 .Build();
         });
-    }
-
-    private static void AddAuthUseCases(IServiceCollection services)
-    {
-        services.AddScoped<LoginUseCase>();
-        services.AddScoped<IValidator<LoginRequest>, LoginRequestValidator>();
-        services.AddScoped<GetCurrentUserUseCase>();
     }
 
     private static void ConfigureJwtBearer(JwtBearerOptions options, AuthOptions authOptions)

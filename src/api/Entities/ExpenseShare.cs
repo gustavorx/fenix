@@ -10,8 +10,8 @@ public class ExpenseShare
     public DateTime? PaymentDate { get; set; }
 
     public Guid ExpenseId { get; set; }
-    public Expense Expense { get; set; }
+    public Expense Expense { get; set; } = null!;
 
-    public Guid? PersonId { get; set; } // null = the user themself
-    public Person Person { get; set; }
+    public Guid? PersonId { get; set; }
+    public Person? Person { get; set; }
 }

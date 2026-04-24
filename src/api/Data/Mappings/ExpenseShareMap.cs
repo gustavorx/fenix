@@ -29,6 +29,6 @@ public class ExpenseShareMap : IEntityTypeConfiguration<ExpenseShare>
         builder.HasOne(s => s.Person)
             .WithMany(p => p.Shares)
             .HasForeignKey(s => s.PersonId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
