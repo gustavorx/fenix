@@ -2,6 +2,7 @@ using api.Features.People.CreatePerson;
 using api.Features.People.DeletePerson;
 using api.Features.People.GetAllPeople;
 using api.Features.People.GetPersonById;
+using api.Features.People.Shared;
 using api.Features.People.UpdatePerson;
 using api.Shared;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/people")]
+[Produces("application/json")]
 public class PersonController(
     CreatePersonUseCase createPersonUseCase,
     DeletePersonUseCase deletePersonUseCase,
@@ -18,6 +20,8 @@ public class PersonController(
     UpdatePersonUseCase updatePersonUseCase) : ApiControllerBase
 {
     [HttpPost]
+    [ProducesResponseType(typeof(PersonResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreatePerson(
         [FromBody] CreatePersonRequest? request,
         CancellationToken cancellationToken)
@@ -36,6 +40,7 @@ public class PersonController(
     }
 
     [HttpGet]
+    [ProducesResponseType(typeof(PersonResponse[]), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPeople(CancellationToken cancellationToken)
     {
         var people = await getAllPeopleUseCase.ExecuteAsync(cancellationToken);
@@ -44,6 +49,8 @@ public class PersonController(
     }
 
     [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(PersonResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetPersonById(Guid id, CancellationToken cancellationToken)
     {
         var result = await getPersonByIdUseCase.ExecuteAsync(id, cancellationToken);
@@ -52,6 +59,9 @@ public class PersonController(
     }
 
     [HttpPatch("{id:guid}")]
+    [ProducesResponseType(typeof(PersonResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdatePerson(
         Guid id,
         [FromBody] UpdatePersonRequest? request,
@@ -69,6 +79,8 @@ public class PersonController(
     }
 
     [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeletePerson(Guid id, CancellationToken cancellationToken)
     {
         var result = await deletePersonUseCase.ExecuteAsync(id, cancellationToken);

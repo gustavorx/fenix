@@ -29,7 +29,11 @@ builder.Services.AddDbContext<FenixContext>((serviceProvider, options) =>
 builder.Services.AddFenixAuth(builder.Configuration);
 builder.Services.AddApplicationServices();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Conventions.Add(new ApiResponseMetadataConvention());
+});
+builder.Services.AddOpenApi();
 builder.Services.AddFenixObservability(builder.Configuration);
 
 var app = builder.Build();
@@ -46,6 +50,11 @@ await using (var scope = app.Services.CreateAsyncScope())
 app.UseFenixMetricsEndpoint();
 app.UseMiddleware<RequestObservabilityMiddleware>();
 app.UseFenixAuth();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi().AllowAnonymous();
+}
 
 app.MapControllers();
 

@@ -2,6 +2,7 @@ using api.Features.Cards.CreateCard;
 using api.Features.Cards.DeleteCard;
 using api.Features.Cards.GetAllCards;
 using api.Features.Cards.GetCardById;
+using api.Features.Cards.Shared;
 using api.Features.Cards.UpdateCard;
 using api.Shared;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/cards")]
+[Produces("application/json")]
 public class CardController(
     CreateCardUseCase createCardUseCase,
     DeleteCardUseCase deleteCardUseCase,
@@ -18,6 +20,8 @@ public class CardController(
     UpdateCardUseCase updateCardUseCase) : ApiControllerBase
 {
     [HttpPost]
+    [ProducesResponseType(typeof(CardResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateCard(
         [FromBody] CreateCardRequest? request,
         CancellationToken cancellationToken)
@@ -36,6 +40,7 @@ public class CardController(
     }
 
     [HttpGet]
+    [ProducesResponseType(typeof(CardResponse[]), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCards(CancellationToken cancellationToken)
     {
         var cards = await getAllCardsUseCase.ExecuteAsync(cancellationToken);
@@ -44,6 +49,8 @@ public class CardController(
     }
 
     [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(CardResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCardById(Guid id, CancellationToken cancellationToken)
     {
         var result = await getCardByIdUseCase.ExecuteAsync(id, cancellationToken);
@@ -52,6 +59,9 @@ public class CardController(
     }
 
     [HttpPatch("{id:guid}")]
+    [ProducesResponseType(typeof(CardResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateCard(
         Guid id,
         [FromBody] UpdateCardRequest? request,
@@ -69,6 +79,8 @@ public class CardController(
     }
 
     [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteCard(Guid id, CancellationToken cancellationToken)
     {
         var result = await deleteCardUseCase.ExecuteAsync(id, cancellationToken);
