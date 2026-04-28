@@ -8,7 +8,7 @@ The first goal is not to code screens immediately. The first goal is to make the
 
 - [x] [0. Document Current API Contract](#0-document-current-api-contract)
 - [x] [1. Capture Product Reference And Frontend Notes](#1-capture-product-reference-and-frontend-notes)
-- [ ] [2. Choose Frontend Stack And Project Structure](#2-choose-frontend-stack-and-project-structure)
+- [x] [2. Choose Frontend Stack And Project Structure](#2-choose-frontend-stack-and-project-structure)
 - [ ] [3. Define Initial Design System](#3-define-initial-design-system)
 - [ ] [4. Scaffold Frontend App Foundation](#4-scaffold-frontend-app-foundation)
 - [ ] [5. Add Authentication Flow](#5-add-authentication-flow)
