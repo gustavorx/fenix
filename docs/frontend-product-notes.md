@@ -6,6 +6,27 @@ These notes capture the first frontend product shape from the masked spreadsheet
 
 The goal is not to recreate the spreadsheet cell-for-cell. The goal is to preserve the monthly finance workflow, the labels that already make sense to the user, and the information density needed for a dashboard-first frontend.
 
+## Current Direction (2026-05-28)
+
+The project is no longer optimizing for exploratory backlog-by-backlog frontend work.
+
+The current goal is to ship a portfolio-ready and personally usable V1 quickly. That changes the frontend decision criteria:
+
+- prefer coherent and finishable over theoretically ideal;
+- prefer modern and restrained over spreadsheet-literal;
+- prefer one strong monthly page over many partially solved patterns;
+- prefer simple interactions over clever contextual UI.
+
+The spreadsheet remains the workflow reference, but not the visual target.
+
+The current execution scope is documented in:
+
+- `docs/frontend-v1-scope.md`
+
+The approved preview used as the current frontend reference is:
+
+- `docs/frontend-preview/dashboard-preview.html`
+
 ## Mental Model
 
 The current workflow is a monthly money overview centered on answering one question quickly:
@@ -264,7 +285,7 @@ Current API note:
 
 - The frontend should be dashboard-first.
 - The spreadsheet's section labels should influence UI language because they match the user's existing workflow.
-- The first dashboard should initially stay very close to the spreadsheet structure, with visible grouped blocks instead of starting from a generic unified table.
+- The first dashboard should preserve the spreadsheet workflow, but V1 may present it through a cleaner modern layout instead of a literal spreadsheet-like structure.
 - Monthly expense views should remain installment-centric.
 - Credit cards should be grouped or filterable because card due dates are meaningful.
 - For the first frontend version, a card's `closingDay` can be treated and displayed as the spreadsheet's card due day (`VCTO.`).
@@ -288,6 +309,7 @@ Current API note:
 - Preserve high information density, but improve readability with spacing, alignment, filtering, and responsive behavior.
 - Money values should align consistently for fast comparison.
 - Installment progress and due dates should be visually scannable.
+- Avoid experimental context patterns in V1 unless they stay clearly simpler than a normal section layout.
 
 ## Open Questions
 
@@ -295,10 +317,11 @@ Current API note:
 
 ## Resolved Questions
 
-- The first dashboard should follow the spreadsheet closely at first, using familiar grouped sections.
+- The first dashboard should preserve familiar grouped sections and labels, but V1 no longer needs to mimic the spreadsheet layout literally.
 - Fixed expenses are not currently modeled as a dedicated feature; they remain normal expenses for now.
 - `closingDay` can represent the card due day in the first frontend.
 - `Recebidos de alguém` means values to receive from someone in the month. The current backend summary already matches this by using all shared receivables due in the month regardless of payment status.
+- `Recebidos de alguém` should remain distinct from normal `Entradas` in the dashboard summary, because that money may exist to offset expenses already assumed by the user rather than represent free disposable income.
 
 ## Shared Receivable Installment Progress
 

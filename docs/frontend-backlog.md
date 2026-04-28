@@ -4,12 +4,27 @@ This backlog tracks the transition from the finished API-first backend work into
 
 The first goal is not to code screens immediately. The first goal is to make the current API and product workflow explicit enough that the frontend can be implemented deliberately, with a small design system and a clear app architecture.
 
+## Current Execution Mode
+
+The backlog remains useful as reference, but the project is currently not being executed as a slow item-by-item discovery track.
+
+The active direction is a shipping-first V1 for personal use and portfolio quality:
+
+- `docs/frontend-v1-scope.md`
+
+That means the practical build path compresses several backlog items into one focused release effort:
+
+- scaffold the app;
+- implement auth;
+- ship the monthly dashboard;
+- add the minimum mutation flows required for real monthly use.
+
 ## Summary
 
 - [x] [0. Document Current API Contract](#0-document-current-api-contract)
 - [x] [1. Capture Product Reference And Frontend Notes](#1-capture-product-reference-and-frontend-notes)
 - [x] [2. Choose Frontend Stack And Project Structure](#2-choose-frontend-stack-and-project-structure)
-- [ ] [3. Define Initial Design System](#3-define-initial-design-system)
+- [x] [3. Define Initial Design System](#3-define-initial-design-system)
 - [ ] [4. Scaffold Frontend App Foundation](#4-scaffold-frontend-app-foundation)
 - [ ] [5. Add Authentication Flow](#5-add-authentication-flow)
 - [ ] [6. Add Frontend-Oriented API Adjustments](#6-add-frontend-oriented-api-adjustments)
@@ -136,6 +151,7 @@ A small design system will keep the frontend consistent while the app grows feat
 
 Next step
 
+- Document the design system in `docs/frontend-design-system.md`.
 - Define design principles:
   - Dashboard-first.
   - Dense enough for financial scanning.
