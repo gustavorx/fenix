@@ -501,6 +501,8 @@ Monthly response:
       "shareInstallmentId": "00000000-0000-0000-0000-000000000000",
       "shareId": "00000000-0000-0000-0000-000000000000",
       "expenseId": "00000000-0000-0000-0000-000000000000",
+      "installmentNumber": 1,
+      "totalInstallments": 3,
       "expenseDescription": "Notebook",
       "personId": "00000000-0000-0000-0000-000000000000",
       "personName": "Alex",
@@ -517,5 +519,8 @@ Rules:
 
 - Create requires amount and due date.
 - Amount must be greater than zero and use at most two decimal places.
+- Monthly shared receivable progress uses `installmentNumber` and `totalInstallments`.
+- That progress is the position within the same `ExpenseShare`, ordered by `dueDate` and then `id`.
+- `Recebidos de alguém` remains separate from `Entradas`; this response change does not alter monthly summary totals.
 - Share installment mutations return the parent share response.
 - Deleting the last share installment is not allowed by current business rules.

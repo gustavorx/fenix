@@ -41,6 +41,10 @@ public class GetMonthlyExpenseShareInstallmentsUseCase(
             .ThenBy(installment => installment.Id)
             .ToListAsync(cancellationToken);
 
+        var progressLookup = await BuildProgressLookupAsync(
+            installments.Select(installment => installment.ExpenseShareId).Distinct().ToList(),
+            cancellationToken);
+
         return Result<MonthlyExpenseShareInstallmentsResponse>.Success(
             new MonthlyExpenseShareInstallmentsResponse
             {
@@ -49,17 +53,67 @@ public class GetMonthlyExpenseShareInstallmentsUseCase(
                 TotalAmount = installments
                     .Aggregate(Money.Zero, (total, installment) => total + installment.Amount)
                     .Value,
-                Items = installments.Select(ToResponse).ToList()
+                Items = installments
+                    .Select(installment => ToResponse(
+                        installment,
+                        progressLookup[installment.Id]))
+                    .ToList()
             });
     }
 
-    private static MonthlyExpenseShareInstallmentResponse ToResponse(Entities.ExpenseShareInstallment installment)
+    private async Task<Dictionary<Guid, ShareInstallmentProgress>> BuildProgressLookupAsync(
+        IReadOnlyCollection<Guid> shareIds,
+        CancellationToken cancellationToken)
+    {
+        if (shareIds.Count == 0)
+        {
+            return [];
+        }
+
+        var shareInstallments = await context.ExpenseShareInstallments
+            .AsNoTracking()
+            .Where(installment => shareIds.Contains(installment.ExpenseShareId))
+            .Select(installment => new
+            {
+                installment.Id,
+                installment.ExpenseShareId,
+                installment.DueDate
+            })
+            .ToListAsync(cancellationToken);
+
+        var lookup = new Dictionary<Guid, ShareInstallmentProgress>(shareInstallments.Count);
+
+        foreach (var shareGroup in shareInstallments.GroupBy(installment => installment.ExpenseShareId))
+        {
+            var orderedInstallments = shareGroup
+                .OrderBy(installment => installment.DueDate)
+                .ThenBy(installment => installment.Id)
+                .ToList();
+
+            var totalInstallments = orderedInstallments.Count;
+
+            for (var index = 0; index < totalInstallments; index++)
+            {
+                lookup[orderedInstallments[index].Id] = new ShareInstallmentProgress(
+                    index + 1,
+                    totalInstallments);
+            }
+        }
+
+        return lookup;
+    }
+
+    private static MonthlyExpenseShareInstallmentResponse ToResponse(
+        Entities.ExpenseShareInstallment installment,
+        ShareInstallmentProgress progress)
     {
         return new MonthlyExpenseShareInstallmentResponse
         {
             ShareInstallmentId = installment.Id,
             ShareId = installment.ExpenseShareId,
             ExpenseId = installment.ExpenseShare.ExpenseId,
+            InstallmentNumber = progress.InstallmentNumber,
+            TotalInstallments = progress.TotalInstallments,
             ExpenseDescription = installment.ExpenseShare.Expense.Description,
             PersonId = installment.ExpenseShare.PersonId,
             PersonName = installment.ExpenseShare.Person?.Name,
@@ -69,4 +123,6 @@ public class GetMonthlyExpenseShareInstallmentsUseCase(
             IsPaid = installment.IsPaid
         };
     }
+
+    private readonly record struct ShareInstallmentProgress(int InstallmentNumber, int TotalInstallments);
 }
