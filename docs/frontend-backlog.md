@@ -36,7 +36,7 @@ The implementation sequence is intentionally incremental and end-to-end:
 - [x] [4.1 Add Router And Placeholder Pages](#41-add-router-and-placeholder-pages)
 - [x] [4.2 Add Shared HTTP Client](#42-add-shared-http-client)
 - [x] [4.3 Add Query Client Provider](#43-add-query-client-provider)
-- [ ] [5.1 Load Current Session](#51-load-current-session)
+- [x] [5.1 Load Current Session](#51-load-current-session)
 - [ ] [5.2 Add Login Flow](#52-add-login-flow)
 - [ ] [5.3 Protect Home Route](#53-protect-home-route)
 - [ ] [5.4 Add Logout And Expired Session Handling](#54-add-logout-and-expired-session-handling)
