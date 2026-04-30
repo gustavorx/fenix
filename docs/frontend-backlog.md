@@ -19,14 +19,27 @@ That means the practical build path compresses several backlog items into one fo
 - ship the monthly dashboard;
 - add the minimum mutation flows required for real monthly use.
 
+The implementation sequence is intentionally incremental and end-to-end:
+
+- keep the app working at every step;
+- prefer small commits over broad frontend-only mock phases;
+- implement auth before the dashboard read path;
+- create folders only when code actually needs them.
+
 ## Summary
 
 - [x] [0. Document Current API Contract](#0-document-current-api-contract)
 - [x] [1. Capture Product Reference And Frontend Notes](#1-capture-product-reference-and-frontend-notes)
 - [x] [2. Choose Frontend Stack And Project Structure](#2-choose-frontend-stack-and-project-structure)
 - [x] [3. Define Initial Design System](#3-define-initial-design-system)
-- [ ] [4. Scaffold Frontend App Foundation](#4-scaffold-frontend-app-foundation)
-- [ ] [5. Add Authentication Flow](#5-add-authentication-flow)
+- [x] [4.0 Scaffold Frontend App Foundation](#40-scaffold-frontend-app-foundation)
+- [ ] [4.1 Add Router And Placeholder Pages](#41-add-router-and-placeholder-pages)
+- [ ] [4.2 Add Shared HTTP Client](#42-add-shared-http-client)
+- [ ] [4.3 Add Query Client Provider](#43-add-query-client-provider)
+- [ ] [5.1 Load Current Session](#51-load-current-session)
+- [ ] [5.2 Add Login Flow](#52-add-login-flow)
+- [ ] [5.3 Protect Home Route](#53-protect-home-route)
+- [ ] [5.4 Add Logout And Expired Session Handling](#54-add-logout-and-expired-session-handling)
 - [ ] [6. Add Frontend-Oriented API Adjustments](#6-add-frontend-oriented-api-adjustments)
 - [ ] [7. Build Monthly Dashboard](#7-build-monthly-dashboard)
 - [ ] [8. Build Income Management](#8-build-income-management)
@@ -196,7 +209,7 @@ Done when
 - A first design-system document exists.
 - The first dashboard and forms can be implemented from shared tokens and components instead of one-off styles.
 
-## 4. Scaffold Frontend App Foundation
+## 4.0 Scaffold Frontend App Foundation
 
 Context
 
@@ -211,24 +224,83 @@ Next step
 - Create the frontend project.
 - Configure TypeScript.
 - Configure formatting/linting.
-- Configure routing.
-- Configure API base URL.
-- Configure TanStack Query provider.
-- Configure global styles and design tokens.
-- Add the base app shell:
-  - Auth layout.
-  - App layout.
-  - Sidebar or top navigation.
-  - Main content area.
-  - Basic responsive behavior.
+- Leave the app in a clean neutral state after removing template/demo content.
 
 Done when
 
 - The frontend app runs locally.
-- The app has a visible shell and placeholder routes.
+- The template/demo content is removed.
 - Basic quality commands run successfully.
 
-## 5. Add Authentication Flow
+## 4.1 Add Router And Placeholder Pages
+
+Context
+
+Before wiring real auth, the app should understand URLs and page boundaries. This keeps the first auth integration small and makes the app behavior easier to reason about.
+
+Motivation
+
+The first learning step after the scaffold should be navigation, not dashboard complexity.
+
+Next step
+
+- Install `react-router-dom`.
+- Add a minimal router.
+- Add a public `/login` page.
+- Add a private-target placeholder `/` page that can later become the authenticated home/dashboard entry.
+- Keep the pages visually simple.
+
+Done when
+
+- The app can navigate between `/login` and `/`.
+- The route setup is clear enough to extend without restructuring.
+
+## 4.2 Add Shared HTTP Client
+
+Context
+
+The frontend will talk to the API through cookie-backed requests. Raw `fetch` calls should not be repeated across features from the start.
+
+Motivation
+
+A small shared HTTP client keeps auth behavior, JSON handling, and error parsing consistent while the app is still small.
+
+Next step
+
+- Create a shared wrapper around `fetch`.
+- Include `credentials: "include"` by default.
+- Handle JSON request and response bodies.
+- Parse the shared backend error shape `{ "errors": [...] }`.
+- Keep it intentionally small and handwritten.
+
+Done when
+
+- Feature code can call one shared helper instead of repeating raw `fetch`.
+- Cookie-backed requests work with the local API setup.
+
+## 4.3 Add Query Client Provider
+
+Context
+
+The app needs a consistent way to load server state such as the current session and later dashboard data.
+
+Motivation
+
+TanStack Query should be introduced before auth reads so session loading, retry behavior, and future cache invalidation all sit on the same foundation.
+
+Next step
+
+- Install `@tanstack/react-query`.
+- Create the shared `QueryClient`.
+- Add the `QueryClientProvider` near the app root.
+- Keep the first configuration simple.
+
+Done when
+
+- The app has a working query foundation for authenticated reads.
+- Future auth and dashboard data can use the same query model.
+
+## 5.1 Load Current Session
 
 Context
 
@@ -236,23 +308,85 @@ The API uses JWT authentication with cookie token transport. The frontend should
 
 Motivation
 
-Correct auth behavior is required before building protected finance screens.
+Before submitting credentials, the app should already know how to ask the backend whether a valid session exists.
 
 Next step
 
-- Implement login screen.
-- Call `POST /api/auth/login`.
-- Include request credentials.
-- Load current user with `GET /api/auth/me`.
-- Implement logout with `POST /api/auth/logout`.
-- Add protected route behavior.
-- Add unauthenticated redirect behavior.
-- Add loading and failed-session states.
+- Add the current-user request for `GET /api/auth/me`.
+- Use the shared HTTP client.
+- Use TanStack Query for loading and caching.
+- Decide what the app should show while the session check is still loading.
 
 Done when
 
-- A user can log in, refresh the page, remain authenticated, and log out.
-- Protected routes do not render private data for unauthenticated users.
+- The app can detect whether the user is authenticated on refresh.
+- Session state is available for route decisions.
+
+## 5.2 Add Login Flow
+
+Context
+
+With routing, the HTTP client, and the session query in place, the login page can become real instead of placeholder UI.
+
+Motivation
+
+This is the first visible end-to-end flow and the first place where the frontend should show backend-driven validation/auth errors.
+
+Next step
+
+- Build the login form.
+- Call `POST /api/auth/login`.
+- Show invalid-credential feedback for `400` and `401` responses as appropriate.
+- Refresh or invalidate the session query after successful login.
+- Redirect to `/` after success.
+
+Done when
+
+- A user can log in from the real frontend.
+- Invalid credentials produce a visible and understandable error state.
+
+## 5.3 Protect Home Route
+
+Context
+
+The app needs a first private surface even before the monthly dashboard exists.
+
+Motivation
+
+A protected home route proves that auth works end-to-end before we add real finance screens.
+
+Next step
+
+- Protect `/` using the loaded session state.
+- Redirect unauthenticated users to `/login`.
+- Keep the authenticated home intentionally minimal for now.
+
+Done when
+
+- Unauthenticated users cannot stay on `/`.
+- Authenticated users can reach a private home page.
+
+## 5.4 Add Logout And Expired Session Handling
+
+Context
+
+Authentication is incomplete until the frontend can end the session intentionally and recover gracefully from expired or missing cookies.
+
+Motivation
+
+This closes the auth loop before the dashboard starts depending on it.
+
+Next step
+
+- Call `POST /api/auth/logout`.
+- Clear or invalidate session state after logout.
+- Redirect to `/login` after logout.
+- Define how the app reacts to `401` from protected reads after a session expires.
+
+Done when
+
+- A user can log out cleanly.
+- Expired or invalid sessions return the user to the login flow without exposing private screens.
 
 ## 6. Add Frontend-Oriented API Adjustments
 
