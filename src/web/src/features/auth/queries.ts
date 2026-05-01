@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { getCurrentUser } from './api'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { getCurrentUser, login } from './api'
 
 export const authQueryKeys = {
   currentUser: ['auth', 'current-user'],
@@ -10,5 +10,16 @@ export function useCurrentUser() {
     queryKey: authQueryKeys.currentUser,
     queryFn: getCurrentUser,
     retry: false,
+  })
+}
+
+export function useLogin() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: login,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: authQueryKeys.currentUser })
+    }
   })
 }
