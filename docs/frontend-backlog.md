@@ -39,7 +39,7 @@ The implementation sequence is intentionally incremental and end-to-end:
 - [x] [5.1 Load Current Session](#51-load-current-session)
 - [x] [5.2 Add Login Flow](#52-add-login-flow)
 - [x] [5.3 Protect Home Route](#53-protect-home-route)
-- [ ] [5.4 Add Logout And Expired Session Handling](#54-add-logout-and-expired-session-handling)
+- [x] [5.4 Add Logout And Expired Session Handling](#54-add-logout-and-expired-session-handling)
 - [ ] [6. Add Frontend-Oriented API Adjustments](#6-add-frontend-oriented-api-adjustments)
 - [ ] [7. Build Monthly Dashboard](#7-build-monthly-dashboard)
 - [ ] [8. Build Income Management](#8-build-income-management)

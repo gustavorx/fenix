@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getCurrentUser, login } from './api'
+import { getCurrentUser, login, logout } from './api'
 
 export const authQueryKeys = {
   currentUser: ['auth', 'current-user'],
@@ -14,12 +14,23 @@ export function useCurrentUser() {
 }
 
 export function useLogin() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: login,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: authQueryKeys.currentUser })
-    }
+    },
+  })
+}
+
+export function useLogout() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: authQueryKeys.currentUser })
+    },
   })
 }
