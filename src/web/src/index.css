@@ -29,3 +29,19 @@ body {
 #root {
   min-height: 100vh;
 }
+
+.page {
+  width: min(100% - 32px, 960px);
+  margin: 0 auto;
+  padding: 48px 0;
+}
+
+.page h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.page p {
+  margin: 12px 0 20px;
+}
