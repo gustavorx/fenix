@@ -61,3 +61,39 @@ The API currently exposes `/metrics` directly through the Prometheus ASP.NET Cor
 Decision
 
 Deferred. Keep the current `/metrics` endpoint for now. Revisit metrics export later and move metrics to OTLP through the OpenTelemetry Collector, so Prometheus and Grafana consume metrics through the observability infrastructure instead of scraping the API directly.
+
+## Standardize Application Error Codes And Messages
+
+Context
+
+Validation errors currently use `AppError.Validation(code, message)` across controllers, validators, and use cases, but the `code` and `message` conventions are not fully consistent.
+
+Motivation
+
+Inconsistent error codes and messages make frontend handling, observability, documentation, and future localization harder. As the API grows, these inconsistencies become more expensive to fix.
+
+Next step
+
+Review all `AppError.Validation` usages and define a consistent convention for error code namespaces, field naming, message tone, and whether messages should be user-facing or developer-facing. Apply the convention incrementally and consider centralizing repeated error factories where it improves consistency.
+
+Decision
+
+Deferred. Revisit once the API surface is broader and there is enough evidence to standardize error conventions without slowing active feature work.
+
+## Run Security Threat Model Review
+
+Context
+
+The API now has authentication, ownership checks, expense sharing, people, cards, and financial read models, but it has not had a dedicated security threat model pass.
+
+Motivation
+
+Financial data and user-scoped resources need explicit review for authorization gaps, cross-user access, unsafe state transitions, sensitive data exposure, and abuse cases around shared expenses and orphaned shares.
+
+Next step
+
+Run a focused threat model review using the `security-threat-model` skill. Capture assets, trust boundaries, entry points, attacker goals, likely abuse cases, and recommended mitigations, then turn any concrete issues into implementation backlog items.
+
+Decision
+
+Deferred. Keep the review available for a later dedicated security pass instead of mixing it into the active product backlog.

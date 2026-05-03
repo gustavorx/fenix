@@ -16,9 +16,7 @@
 - [X] [12. Add Cards And Optional Expense Card Association](#12-add-cards-and-optional-expense-card-association)
 - [X] [13. Add Explicit Installment Create Mode](#13-add-explicit-installment-create-mode)
 - [X] [14. Auth And Authorization Phase 2](#14-auth-and-authorization-phase-2)
-- [ ] [15. Add Monthly Summary Read Model](#15-add-monthly-summary-read-model)
-- [ ] [16. Standardize Application Error Codes And Messages](#16-standardize-application-error-codes-and-messages)
-- [ ] [17. Run Security Threat Model Review](#17-run-security-threat-model-review)
+- [X] [15. Add Monthly Summary Read Model](#15-add-monthly-summary-read-model)
 
 ## 1. Review Date And Timezone Modeling
 
@@ -301,30 +299,3 @@ Suggested response shape:
 }
 ```
 
-## 16. Standardize Application Error Codes And Messages
-
-Context
-
-Validation errors currently use `AppError.Validation(code, message)` across controllers, validators, and use cases, but the `code` and `message` conventions are not fully consistent.
-
-Motivation
-
-Inconsistent error codes and messages make frontend handling, observability, documentation, and future localization harder. As the API grows, these inconsistencies become more expensive to fix.
-
-Next step
-
-Review all `AppError.Validation` usages and define a consistent convention for error code namespaces, field naming, message tone, and whether messages should be user-facing or developer-facing. Apply the convention incrementally and consider centralizing repeated error factories where it improves consistency.
-
-## 17. Run Security Threat Model Review
-
-Context
-
-The API now has authentication, ownership checks, expense sharing, people, cards, and financial read models, but it has not had a dedicated security threat model pass.
-
-Motivation
-
-Financial data and user-scoped resources need explicit review for authorization gaps, cross-user access, unsafe state transitions, sensitive data exposure, and abuse cases around shared expenses and orphaned shares.
-
-Next step
-
-Run a focused threat model review using the `security-threat-model` skill. Capture assets, trust boundaries, entry points, attacker goals, likely abuse cases, and recommended mitigations, then turn any concrete issues into implementation backlog items.
