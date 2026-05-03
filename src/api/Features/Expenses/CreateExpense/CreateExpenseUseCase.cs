@@ -2,6 +2,7 @@ using api.Auth;
 using api.Data;
 using api.Entities;
 using api.Enums;
+using api.Features.ExpenseShares.Shared;
 using api.Features.Expenses.Shared;
 using api.Shared;
 using api.ValueObjects;
@@ -89,11 +90,9 @@ public class CreateExpenseUseCase(
                 expense.AddShare(ExpenseShare.Create(
                     expense.Id,
                     share.PersonId!.Value,
-                    share.Installments!
-                        .Select(installment => new ExpenseShareInstallmentDraft(
-                            Money.Create(installment.Amount!.Value),
-                            installment.DueDate!.Value))
-                        .ToList()));
+                    share.Installments!.ToShareInstallmentDrafts(
+                        installment => installment.Amount,
+                        installment => installment.DueDate)));
             }
         }
 

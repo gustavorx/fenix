@@ -1,4 +1,5 @@
 using api.Entities;
+using api.Features.ExpenseShares.Shared;
 using api.Features.Expenses.Shared;
 
 namespace api.Features.Expenses.GetExpenseById;
