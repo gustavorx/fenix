@@ -88,4 +88,55 @@ public class ExpenseShare
         AssignPerson(person.Id);
         Person = person;
     }
+
+    public ExpenseShareInstallment AddInstallment(Money amount, DateOnly dueDate)
+    {
+        var installment = ExpenseShareInstallment.Create(Id, amount, dueDate);
+
+        Installments.Add(installment);
+        RecalculateAmount();
+
+        return installment;
+    }
+
+    public void UpdateInstallment(
+        Guid installmentId,
+        Money? amount,
+        DateOnly? dueDate,
+        DateOnly? paidDate,
+        bool updatePaidDate)
+    {
+        var installment = GetInstallment(installmentId);
+
+        installment.Update(amount, dueDate, paidDate, updatePaidDate);
+        RecalculateAmount();
+    }
+
+    public ExpenseShareInstallment RemoveInstallment(Guid installmentId)
+    {
+        if (Installments.Count <= 1)
+        {
+            throw new InvalidOperationException("Share must contain at least one installment.");
+        }
+
+        var installment = GetInstallment(installmentId);
+
+        Installments.Remove(installment);
+        RecalculateAmount();
+
+        return installment;
+    }
+
+    private ExpenseShareInstallment GetInstallment(Guid installmentId)
+    {
+        return Installments.FirstOrDefault(installment => installment.Id == installmentId)
+            ?? throw new InvalidOperationException("Share installment not found.");
+    }
+
+    private void RecalculateAmount()
+    {
+        Amount = Installments
+            .Select(installment => installment.Amount)
+            .Aggregate(Money.Zero, (current, amount) => current + amount);
+    }
 }
