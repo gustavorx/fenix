@@ -48,11 +48,10 @@ public class IncomeController(
 
     [HttpGet("monthly")]
     public async Task<IActionResult> GetMonthlyIncomes(
-        [FromQuery] int month,
-        [FromQuery] int year,
+        [FromQuery] GetMonthlyIncomesRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await getMonthlyIncomesUseCase.ExecuteAsync(month, year, cancellationToken);
+        var result = await getMonthlyIncomesUseCase.ExecuteAsync(request, cancellationToken);
 
         return ToActionResult(result, Ok);
     }

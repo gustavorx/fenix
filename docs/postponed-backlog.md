@@ -51,3 +51,13 @@ The HTTP layer still builds some error payloads inline in controllers, but the A
 Decision
 
 Deferred. Revisit HTTP error response modeling after introducing global exception handling and more endpoints, so the project can define a single error contract with better evidence about validation, not found, conflict, and unexpected failure scenarios.
+
+## Move Metrics Export To OpenTelemetry Collector
+
+Context
+
+The API currently exposes `/metrics` directly through the Prometheus ASP.NET Core exporter, and Prometheus scrapes the API endpoint. This is practical for local development, but it keeps Prometheus-specific metric export inside the application and leaves `/metrics` as an operational endpoint on the API surface.
+
+Decision
+
+Deferred. Keep the current `/metrics` endpoint for now. Revisit metrics export later and move metrics to OTLP through the OpenTelemetry Collector, so Prometheus and Grafana consume metrics through the observability infrastructure instead of scraping the API directly.

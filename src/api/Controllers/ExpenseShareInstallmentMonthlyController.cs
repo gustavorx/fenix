@@ -10,13 +10,11 @@ public class ExpenseShareInstallmentMonthlyController(
 {
     [HttpGet("monthly")]
     public async Task<IActionResult> GetMonthlyExpenseShareInstallments(
-        [FromQuery] int month,
-        [FromQuery] int year,
+        [FromQuery] GetMonthlyExpenseShareInstallmentsRequest request,
         CancellationToken cancellationToken)
     {
         var result = await getMonthlyExpenseShareInstallmentsUseCase.ExecuteAsync(
-            month,
-            year,
+            request,
             cancellationToken);
 
         return ToActionResult(result, Ok);
