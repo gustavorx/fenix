@@ -152,6 +152,18 @@ public class Expense
         return false;
     }
 
+    public void AddShare(ExpenseShare share)
+    {
+        ArgumentNullException.ThrowIfNull(share);
+
+        if (share.ExpenseId != Id)
+        {
+            throw new ArgumentException("Share must belong to the current expense.", nameof(share));
+        }
+
+        Shares.Add(share);
+    }
+
     private ICollection<Installment> CreateInstallments(Money totalAmount, DateOnly firstDueDate, int installmentsQuantity)
     {
         var installmentAmounts = SplitAmount(totalAmount, installmentsQuantity);

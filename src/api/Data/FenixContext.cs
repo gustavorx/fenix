@@ -13,6 +13,7 @@ public class FenixContext(DbContextOptions<FenixContext> options) : DbContext(op
     public DbSet<Installment> Installments { get; set; } = null!;
     public DbSet<Person> People { get; set; } = null!;
     public DbSet<ExpenseShare> ExpenseShares { get; set; } = null!;
+    public DbSet<ExpenseShareInstallment> ExpenseShareInstallments { get; set; } = null!;
     public DbSet<Card> Cards { get; set; } = null!;
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

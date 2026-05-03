@@ -15,12 +15,6 @@ public class ExpenseShareMap : IEntityTypeConfiguration<ExpenseShare>
         builder.Property(s => s.Amount)
             .IsRequired();
 
-        builder.Property(s => s.Paid)
-            .IsRequired();
-
-        builder.Property(s => s.PaymentDate)
-            .IsRequired(false);
-
         builder.HasOne(s => s.Expense)
             .WithMany(e => e.Shares)
             .HasForeignKey(s => s.ExpenseId)
@@ -30,5 +24,10 @@ public class ExpenseShareMap : IEntityTypeConfiguration<ExpenseShare>
             .WithMany(p => p.Shares)
             .HasForeignKey(s => s.PersonId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasMany(s => s.Installments)
+            .WithOne(i => i.ExpenseShare)
+            .HasForeignKey(i => i.ExpenseShareId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

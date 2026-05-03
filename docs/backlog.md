@@ -16,6 +16,7 @@
 - [X] [12. Add Cards And Optional Expense Card Association](#12-add-cards-and-optional-expense-card-association)
 - [X] [13. Add Explicit Installment Create Mode](#13-add-explicit-installment-create-mode)
 - [X] [14. Auth And Authorization Phase 2](#14-auth-and-authorization-phase-2)
+- [ ] [15. Add Monthly Summary Read Model](#15-add-monthly-summary-read-model)
 
 ## 1. Review Date And Timezone Modeling
 
@@ -261,3 +262,39 @@ Identity flows such as user creation, email validation, token issuance, and sess
 Next step
 
 Replace the fixed current-user implementation with real authentication and authorization flows, such as JWT in cookies or another session mechanism, once the core API surface is stable.
+
+## 15. Add Monthly Summary Read Model
+
+Context
+
+The frontend monthly dashboard needs a top-level summary that matches the current spreadsheet workflow instead of deriving the result indirectly from separate expense, income, and share screens.
+
+Motivation
+
+`GET /api/expenses/monthly` should remain focused on listing monthly expenses with gross values and, at most, a lightweight share indicator such as `hasShares`. The dashboard header, however, mixes three concerns: incomes, shared receivables, and expense totals. If that aggregation stays implicit in the client, the same business math may be reimplemented inconsistently across screens.
+
+Next step
+
+Add a dedicated `GET /api/monthly-summary` read model scoped by `month` and `year`. The contract should expose the raw totals used by the dashboard and also the final user balance:
+
+- `totalIncomes`: sum of all incomes in the month.
+- `totalSharedReceivables`: sum of all expense shares in the month, regardless of whether they were already paid.
+- `totalGrossExpenses`: sum of all expenses in the month before subtracting shares.
+- `totalNetExpenses`: `totalGrossExpenses - totalSharedReceivables`.
+- `myFinalBalance`: `totalIncomes - totalNetExpenses`.
+
+Suggested response shape:
+
+```json
+{
+  "month": 4,
+  "year": 2026,
+  "totals": {
+    "totalIncomes": 9904.93,
+    "totalSharedReceivables": 800.00,
+    "totalGrossExpenses": 10577.30,
+    "totalNetExpenses": 9777.30,
+    "myFinalBalance": 127.63
+  }
+}
+```

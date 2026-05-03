@@ -99,12 +99,6 @@ namespace api.src.api.Migrations
                     b.Property<Guid>("ExpenseId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("Paid")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("PaymentDate")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<Guid?>("PersonId")
                         .HasColumnType("uuid");
 
@@ -115,6 +109,31 @@ namespace api.src.api.Migrations
                     b.HasIndex("PersonId");
 
                     b.ToTable("ExpenseShares", (string)null);
+                });
+
+            modelBuilder.Entity("api.Entities.ExpenseShareInstallment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateOnly>("DueDate")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("ExpenseShareId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("PaidDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpenseShareId");
+
+                    b.ToTable("ExpenseShareInstallments", (string)null);
                 });
 
             modelBuilder.Entity("api.Entities.Income", b =>
@@ -278,6 +297,17 @@ namespace api.src.api.Migrations
                     b.Navigation("Person");
                 });
 
+            modelBuilder.Entity("api.Entities.ExpenseShareInstallment", b =>
+                {
+                    b.HasOne("api.Entities.ExpenseShare", "ExpenseShare")
+                        .WithMany("Installments")
+                        .HasForeignKey("ExpenseShareId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ExpenseShare");
+                });
+
             modelBuilder.Entity("api.Entities.Income", b =>
                 {
                     b.HasOne("api.Entities.User", "User")
@@ -326,6 +356,11 @@ namespace api.src.api.Migrations
             modelBuilder.Entity("api.Entities.Person", b =>
                 {
                     b.Navigation("Shares");
+                });
+
+            modelBuilder.Entity("api.Entities.ExpenseShare", b =>
+                {
+                    b.Navigation("Installments");
                 });
 
             modelBuilder.Entity("api.Entities.User", b =>
