@@ -24,4 +24,5 @@ public class MonthlyExpenseInstallmentResponse
     public DateOnly PurchaseDate { get; init; }
     public DateOnly DueDate { get; init; }
     public bool Paid { get; init; }
+    public bool HasShares { get; init; }
 }

@@ -32,7 +32,9 @@ public static class ExpenseMapper
         };
     }
 
-    public static MonthlyExpenseInstallmentResponse ToMonthlyInstallmentResponse(this Installment installment)
+    public static MonthlyExpenseInstallmentResponse ToMonthlyInstallmentResponse(
+        this Installment installment,
+        bool hasShares)
     {
         return new MonthlyExpenseInstallmentResponse
         {
@@ -47,7 +49,8 @@ public static class ExpenseMapper
             InstallmentAmount = installment.Amount.Value,
             PurchaseDate = installment.Expense.PurchaseDate,
             DueDate = installment.DueDate,
-            Paid = installment.Paid
+            Paid = installment.Paid,
+            HasShares = hasShares
         };
     }
 
