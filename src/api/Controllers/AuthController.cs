@@ -1,6 +1,7 @@
 using api.Auth;
 using api.Features.Auth.Login;
 using api.Features.Auth.Me;
+using api.Features.Auth.Shared;
 using api.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
+[Produces("application/json")]
 public class AuthController(
     LoginUseCase loginUseCase,
     GetCurrentUserUseCase getCurrentUserUseCase,
@@ -16,6 +18,9 @@ public class AuthController(
 {
     [AllowAnonymous]
     [HttpPost("login")]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] LoginRequest? request, CancellationToken cancellationToken)
     {
         if (request == null)
@@ -39,6 +44,7 @@ public class AuthController(
 
     [AllowAnonymous]
     [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult Logout()
     {
         Response.Cookies.Delete(
@@ -52,6 +58,7 @@ public class AuthController(
     }
 
     [HttpGet("me")]
+    [ProducesResponseType(typeof(AuthUserResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
     {
         var result = await getCurrentUserUseCase.ExecuteAsync(cancellationToken);

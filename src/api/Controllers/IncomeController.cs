@@ -3,6 +3,7 @@ using api.Features.Incomes.DeleteIncome;
 using api.Features.Incomes.GetAllIncomes;
 using api.Features.Incomes.GetIncomeById;
 using api.Features.Incomes.GetMonthlyIncomes;
+using api.Features.Incomes.Shared;
 using api.Features.Incomes.UpdateIncome;
 using api.Shared;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/incomes")]
+[Produces("application/json")]
 public class IncomeController(
     CreateIncomeUseCase createIncomeUseCase,
     DeleteIncomeUseCase deleteIncomeUseCase,
@@ -20,6 +22,8 @@ public class IncomeController(
     UpdateIncomeUseCase updateIncomeUseCase) : ApiControllerBase
 {
     [HttpPost]
+    [ProducesResponseType(typeof(IncomeResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateIncome(
         [FromBody] CreateIncomeRequest? request,
         CancellationToken cancellationToken)
@@ -39,6 +43,7 @@ public class IncomeController(
     }
 
     [HttpGet]
+    [ProducesResponseType(typeof(IncomeResponse[]), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetIncomes(CancellationToken cancellationToken)
     {
         var incomes = await getAllIncomesUseCase.ExecuteAsync(cancellationToken);
@@ -47,6 +52,8 @@ public class IncomeController(
     }
 
     [HttpGet("monthly")]
+    [ProducesResponseType(typeof(MonthlyIncomesResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetMonthlyIncomes(
         [FromQuery] GetMonthlyIncomesRequest request,
         CancellationToken cancellationToken)
@@ -57,6 +64,8 @@ public class IncomeController(
     }
 
     [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(IncomeResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetIncomeById(Guid id, CancellationToken cancellationToken)
     {
         var result = await getIncomeByIdUseCase.ExecuteAsync(id, cancellationToken);
@@ -65,6 +74,9 @@ public class IncomeController(
     }
 
     [HttpPatch("{id:guid}")]
+    [ProducesResponseType(typeof(IncomeResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateIncome(
         Guid id,
         [FromBody] UpdateIncomeRequest? request,
@@ -83,6 +95,8 @@ public class IncomeController(
     }
 
     [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteIncome(Guid id, CancellationToken cancellationToken)
     {
         var result = await deleteIncomeUseCase.ExecuteAsync(id, cancellationToken);

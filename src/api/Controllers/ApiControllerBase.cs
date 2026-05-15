@@ -32,9 +32,9 @@ public abstract class ApiControllerBase : ControllerBase
 
         return result.ErrorType switch
         {
-            ErrorType.Validation => BadRequest(new { errors = result.Errors }),
-            ErrorType.NotFound => NotFound(new { errors = result.Errors }),
-            ErrorType.Unauthorized => Unauthorized(new { errors = result.Errors }),
+            ErrorType.Validation => BadRequest(new ApiErrorResponse { Errors = result.Errors }),
+            ErrorType.NotFound => NotFound(new ApiErrorResponse { Errors = result.Errors }),
+            ErrorType.Unauthorized => Unauthorized(new ApiErrorResponse { Errors = result.Errors }),
             _ => StatusCode(StatusCodes.Status500InternalServerError)
         };
     }
@@ -43,7 +43,7 @@ public abstract class ApiControllerBase : ControllerBase
     {
         TrackErrors(errors);
 
-        return BadRequest(new { errors });
+        return BadRequest(new ApiErrorResponse { Errors = errors });
     }
 
     protected void TrackErrors(IEnumerable<AppError> errors)

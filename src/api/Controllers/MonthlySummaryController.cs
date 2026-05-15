@@ -6,9 +6,12 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/monthly-summary")]
+[Produces("application/json")]
 public class MonthlySummaryController(GetMonthlySummaryUseCase getMonthlySummaryUseCase) : ApiControllerBase
 {
     [HttpGet]
+    [ProducesResponseType(typeof(MonthlySummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetMonthlySummary(
         [FromQuery] GetMonthlySummaryRequest? request,
         CancellationToken cancellationToken)
