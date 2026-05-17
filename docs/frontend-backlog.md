@@ -7,17 +7,18 @@ The first goal is not to code screens immediately. The first goal is to make the
 ## Summary
 
 - [x] [0. Document Current API Contract](#0-document-current-api-contract)
-- [ ] [1. Capture Product Reference And Frontend Notes](#1-capture-product-reference-and-frontend-notes)
+- [x] [1. Capture Product Reference And Frontend Notes](#1-capture-product-reference-and-frontend-notes)
 - [ ] [2. Choose Frontend Stack And Project Structure](#2-choose-frontend-stack-and-project-structure)
 - [ ] [3. Define Initial Design System](#3-define-initial-design-system)
 - [ ] [4. Scaffold Frontend App Foundation](#4-scaffold-frontend-app-foundation)
 - [ ] [5. Add Authentication Flow](#5-add-authentication-flow)
-- [ ] [6. Build Monthly Dashboard](#6-build-monthly-dashboard)
-- [ ] [7. Build Income Management](#7-build-income-management)
-- [ ] [8. Build Expense Management](#8-build-expense-management)
-- [ ] [9. Build Cards Management](#9-build-cards-management)
-- [ ] [10. Build People And Shared Expenses Management](#10-build-people-and-shared-expenses-management)
-- [ ] [11. Add Frontend Quality Gates](#11-add-frontend-quality-gates)
+- [ ] [6. Add Frontend-Oriented API Adjustments](#6-add-frontend-oriented-api-adjustments)
+- [ ] [7. Build Monthly Dashboard](#7-build-monthly-dashboard)
+- [ ] [8. Build Income Management](#8-build-income-management)
+- [ ] [9. Build Expense Management](#9-build-expense-management)
+- [ ] [10. Build Cards Management](#10-build-cards-management)
+- [ ] [11. Build People And Shared Expenses Management](#11-build-people-and-shared-expenses-management)
+- [ ] [12. Add Frontend Quality Gates](#12-add-frontend-quality-gates)
 
 ## 0. Document Current API Contract
 
@@ -237,7 +238,38 @@ Done when
 - A user can log in, refresh the page, remain authenticated, and log out.
 - Protected routes do not render private data for unauthenticated users.
 
-## 6. Build Monthly Dashboard
+## 6. Add Frontend-Oriented API Adjustments
+
+Context
+
+The spreadsheet reference includes small display details that make the first dashboard easier to scan. Most of the required API contract already exists, but a few frontend-oriented read model adjustments should happen before building the dashboard so the UI does not need awkward joins or hidden assumptions.
+
+Motivation
+
+The first dashboard should stay close to the spreadsheet. Shared receivables currently have a monthly endpoint, but the response does not expose installment progress like `4/10`, which appears in the spreadsheet and helps identify where a receivable sits in a longer shared purchase.
+
+Next step
+
+- Extend `GET /api/expense-share-installments/monthly` items with:
+  - `installmentNumber`
+  - `totalInstallments`
+- Derive the progress from the installments that belong to the same `ExpenseShare`, ordered by `DueDate`, then `Id`.
+- Keep the existing monthly shared receivable fields:
+  - person
+  - source expense
+  - amount
+  - due date
+  - paid date
+  - paid state
+- Update `docs/api-contract.md` after changing the response shape.
+- Rebuild and verify OpenAPI still exposes the updated response schema.
+
+Done when
+
+- Monthly shared receivable rows can render spreadsheet-style progress such as `4/10`.
+- The OpenAPI contract and human-readable API guide include the new fields.
+
+## 7. Build Monthly Dashboard
 
 Context
 
@@ -269,7 +301,7 @@ Done when
 
 - The dashboard answers the user's main monthly finance questions without needing the spreadsheet.
 
-## 7. Build Income Management
+## 8. Build Income Management
 
 Context
 
@@ -292,7 +324,7 @@ Done when
 
 - The user can manage monthly incomes fully from the frontend.
 
-## 8. Build Expense Management
+## 9. Build Expense Management
 
 Context
 
@@ -318,7 +350,7 @@ Done when
 
 - The user can register and remove expenses in the same way the API models them.
 
-## 9. Build Cards Management
+## 10. Build Cards Management
 
 Context
 
@@ -341,7 +373,7 @@ Done when
 
 - Cards can be managed independently and used during expense creation.
 
-## 10. Build People And Shared Expenses Management
+## 11. Build People And Shared Expenses Management
 
 Context
 
@@ -369,7 +401,7 @@ Done when
 
 - The user can manage people and shared receivables without leaving the app.
 
-## 11. Add Frontend Quality Gates
+## 12. Add Frontend Quality Gates
 
 Context
 
