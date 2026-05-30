@@ -2,6 +2,14 @@
 
 This document records the initial frontend architecture decisions for Fenix before app scaffolding begins. The goal is a modern React application that remains approachable to a backend developer learning contemporary frontend development.
 
+The current execution mode is shipping-first:
+
+- finish a coherent V1 quickly;
+- keep the app good enough for portfolio presentation;
+- avoid architecture decisions that exist only to support speculative UI complexity.
+
+The concrete scope for that release lives in `docs/frontend-v1-scope.md`.
+
 ## Goals
 
 - Build a real monthly finance application, not a sample UI.
@@ -170,6 +178,8 @@ React state and form libraries will manage UI state.
 
 Tailwind CSS provides the styling foundation and design-token implementation.
 
+The first shared tokens, component families, and visual rules are documented in `docs/frontend-design-system.md`.
+
 shadcn/ui will be used selectively for controls whose interaction and accessibility details are costly to rebuild correctly, such as:
 
 - dialogs;
@@ -190,6 +200,12 @@ Fenix-specific components will be designed and built locally, including:
 - loading, empty, and error states.
 
 The app should not become a generic shadcn assembly. Shared primitives support the interface; product design remains specific to the finance workflow.
+
+For V1, prefer the simplest product-specific composition that can ship:
+
+- explicit monthly sections over clever hidden panels;
+- ordinary dialogs over unusual interaction patterns;
+- one strong monthly page over many partially built surfaces.
 
 ## Source Structure
 
@@ -274,8 +290,20 @@ After the architecture and design-system documentation are complete, implementat
 2. Configure Tailwind, routing, TanStack Query, and app layouts.
 3. Implement authentication using cookie-backed API requests.
 4. Apply the frontend-oriented API adjustments required for dashboard fidelity.
-5. Build the monthly dashboard close to the spreadsheet reference.
-6. Add management workflows feature by feature.
+5. Build the monthly dashboard as the primary product surface.
+6. Add only the management workflows required for real monthly use.
+
+## Shipping-First V1 Notes
+
+The architecture should support a portfolio-ready release, not endless UI exploration.
+
+Implications:
+
+- keep route count low at first;
+- make the monthly dashboard the center of the app;
+- use modal CRUD where it reduces navigation cost;
+- defer broad abstraction until repeated usage proves it helpful;
+- treat the more ambitious preview variants as reference material, not binding architecture.
 
 ## Deferred Decisions
 
