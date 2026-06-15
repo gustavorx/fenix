@@ -13,6 +13,8 @@ public class MonthlyExpenseShareInstallmentResponse
     public Guid ShareInstallmentId { get; init; }
     public Guid ShareId { get; init; }
     public Guid ExpenseId { get; init; }
+    public int InstallmentNumber { get; init; }
+    public int TotalInstallments { get; init; }
     public string ExpenseDescription { get; init; } = string.Empty;
     public Guid? PersonId { get; init; }
     public string? PersonName { get; init; }
