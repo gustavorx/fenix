@@ -1,0 +1,47 @@
+:root {
+  font-family: system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.page {
+  width: min(100% - 32px, 960px);
+  margin: 0 auto;
+  padding: 48px 0;
+}
+
+.page h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.page p {
+  margin: 12px 0 20px;
+}
